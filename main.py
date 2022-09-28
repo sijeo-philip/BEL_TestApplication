@@ -2,6 +2,85 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import showinfo
+import time
+from token import EXACT_TOKEN_TYPES
+from mcp2210 import Mcp2210, Mcp2210GpioDesignation, Mcp2210GpioDirection
+import hid
+
+from test_1_092722 import mcp_init
+
+class intF:
+    connStatus = 0
+    vid = 0x04D8
+    pid = 0x00DE
+    serailNumber = ""
+    manufactuere = ""
+    product = ""
+
+PLL1 = 0
+PLL2 = 1
+
+try:
+    h= hid.device()
+    h.open(intF.vid, intF.pid)
+    intF.manufactuere = h.get_manufacturer_string()
+    intF.product = h.get_product_string()
+    intF.serailNumber = h.get_serial_number_string()
+    print("Manufacturer: {}".format(intF.manufactuere))
+    print("Product: {}".format(intF.product))
+    print("Serail No: {}".format(intF.serailNumber))
+
+    mcp = Mcp2210(serial_number = intF.serailNumber, vendor_id= intF.vid, product_id= intF.pid)
+    mcp.configure_spi_timing(chip_select_to_data_delay=0, last_data_byte_to_cs=0, delay_between_bytes=0)
+    intF.connStatus = 1
+except Exception as err:
+    print("Device is not connected: {}".format(err))
+    intF.connStatus = 0
+
+
+class mcpAPI():
+    def mcp_init():
+        try:
+            h= hid.device()
+            h.open(intF.vid, intF.pid)
+            intF.manufactuere = h.get_manufacturer_string()
+            intF.product = h.get_product_string()
+            intF.serailNumber = h.get_serial_number_string()
+            print("Manufacturer: {}".format(intF.manufactuere))
+            print("Product: {}".format(intF.product))
+            print("Serail No: {}".format(intF.serailNumber))
+
+            mcp = Mcp2210(serial_number = intF.serailNumber, vendor_id= intF.vid, product_id= intF.pid)
+            mcp.configure_spi_timing(chip_select_to_data_delay=0, last_data_byte_to_cs=0, delay_between_bytes=0)
+            intF.connStatus = 1
+        except Exception as err:
+            print("Device is not connected: {}".format(err))
+            intF.connStatus = 0
+
+    def gpio_mode(pin, value):
+        mcp.set_gpio_designation(pin, Mcp2210GpioDesignation.GPIO)
+        if 1 == value:
+            mcp.set_gpio_direction(pin, Mcp2210GpioDirection.INPUT)
+        elif 0 == value:
+            mcp.set_gpio_direction(pin, Mcp2210GpioDirection.OUTPUT)
+
+    def gpio_write(pin, value):
+        mcp.set_gpio_output_value(pin, value)
+
+    def gpio_read(pin):
+        return mcp.get_gpio_value(pin)
+
+    def spi_init(cs_pin):
+        if(PLL1 == cs_pin):
+            print("Initiating the PLL1...")
+        else:
+            print("Initiating the PLL2...")
+        mcp.set_gpio_designation(cs_pin, Mcp2210GpioDesignation.CHIP_SELECT)
+
+    def spi_write(cs_pin, payload):
+        print("Sending Byte: {}\n".format(payload))
+        tx_data = bytes(payload)
+        rx_data = mcp.spi_exchange(tx_data, cs_pin_number=cs_pin)
 
 
 class App(tk.Tk):
@@ -97,15 +176,26 @@ class App(tk.Tk):
 
     def button1_clicked(self, value):
         print("Button1 {} is pressed\n".format(value))
-
+        try:
+            mcpAPI.spi_init(PLL1)
+            mcpAPI.spi_write(PLL1, 255);
+        except Exception as err:
+            print("Device Connection Error: {}".format(err))
+            #mcpAPI.mcp_init()
+    
+    time.sleep(1)
     def button2_clicked(self, value):
         print("Button2 {} is pressed\n".format(value))
-
+        try:
+            mcpAPI.spi_init(PLL2)
+            mcpAPI.spi_write(PLL2, 255)
+        except Exception as err:
+            print("Device Connection Error: {}".format(err))
+           # mcpAPI.mcp_init()
+            
     def register_data_capture(self):
         pass
-
-
-
+    
 if __name__ == '__main__':
     app = App()
     app.mainloop()
