@@ -122,7 +122,10 @@ class App(tk.Tk):
         #self.statusBar.grid(sticky=tk.W+tk.E, row=13, ipady=10)
 
         self.registerMapButton = ttk.Button(self, text="Show Register Map", command=lambda :webbrowser.open_new("lmx2581_regmap.pdf"))
-        self.registerMapButton.pack(side=tk.RIGHT, pady= 10, padx=10, ipadx=10, ipady=10)
+        self.registerMapButton.pack( padx=10, ipadx=5, ipady=5, anchor='w')
+
+        self.statusBar = tk.Label(self, text= 'Disconnected', anchor='e', bd=1, relief=tk.SUNKEN)
+        self.statusBar.pack(side=tk.BOTTOM, fill=tk.X, pady=1)
 
 
     def button1_clicked(self, value):
