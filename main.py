@@ -19,8 +19,27 @@ class App(tk.Tk):
 
         self.info_icon = tk.PhotoImage(file='info.png')
 
+        self.mainFrame = tk.Frame(self)
+        self.mainFrame.pack(fill=tk.BOTH, expand=1)
+
+        self.mainCanvas = tk.Canvas(self.mainFrame)
+        self.mainCanvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
+        self.scrollBar = ttk.Scrollbar(self.mainFrame, orient=tk.VERTICAL, command=self.mainCanvas.yview)
+        self.scrollBar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        #Configure the Canvas
+        self.mainCanvas.configure(yscrollcommand=self.scrollBar.set)
+        self.mainCanvas.bind('<Configure>', lambda e: self.mainCanvas.configure(scrollregion= self.mainCanvas.bbox("all")))
+
+        #Create Another Frame in the Canvas
+        self.secondMainFrame = tk.Frame(self.mainCanvas)
+
+        #Add that New Frame to a Window in the Canvas
+        self.mainCanvas.create_window((0,0), window=self.secondMainFrame, anchor="nw")
+
         for i in range(11):
-            self.registerR.append(tk.LabelFrame(self, width=100, highlightthickness=3, labelanchor='nw', text='Register R'+str(i)))
+            self.registerR.append(tk.LabelFrame(self.secondMainFrame, width=100, highlightthickness=3, labelanchor='nw', text='Register R'+str(i)))
             self.registerR[i].pack(fill=tk.X, padx=5)
 
             self.labels.append(ttk.Label(self.registerR[i], text='R'+str(i)))
@@ -82,7 +101,7 @@ class App(tk.Tk):
         self.button2[10]['command'] = lambda: self.button2_clicked(10)
         self.button3[10]['command'] = lambda: self.button3_clicked(10)
 
-        self.registerR.append(tk.LabelFrame(self, width=100, highlightthickness=3, labelanchor='nw', text='Register R'+str(13)))
+        self.registerR.append(tk.LabelFrame(self.secondMainFrame, width=100, highlightthickness=3, labelanchor='nw', text='Register R'+str(13)))
         self.registerR[11].pack(fill=tk.X, padx=5)
 
         self.labels.append(ttk.Label(self.registerR[11], text='R' + str(13)))
@@ -100,7 +119,7 @@ class App(tk.Tk):
         self.button3.append(ttk.Button(self.registerR[11], image=self.info_icon, command=lambda:self.button2_clicked(13)))
         self.button3[11].pack(side=tk.LEFT, padx=5)
 
-        self.registerR.append(tk.LabelFrame(self, width=100, highlightthickness=3, labelanchor='nw', text='Register R' + str(15)))
+        self.registerR.append(tk.LabelFrame(self.secondMainFrame, width=100, highlightthickness=3, labelanchor='nw', text='Register R' + str(15)))
         self.registerR[12].pack(fill=tk.X, padx=5)
 
         self.labels.append(ttk.Label(self.registerR[12], text='R' + str(15)))
@@ -121,12 +140,11 @@ class App(tk.Tk):
         #self.statusBar = tk.Label(self, bd=1, relief='sunken', text='Disconnected', anchor='c')
         #self.statusBar.grid(sticky=tk.W+tk.E, row=13, ipady=10)
 
-        self.registerMapButton = ttk.Button(self, text="Show Register Map", command=lambda :webbrowser.open_new("lmx2581_regmap.pdf"))
+        self.registerMapButton = ttk.Button(self.secondMainFrame, text="Show Register Map", command=lambda :webbrowser.open_new("lmx2581_regmap.pdf"))
         self.registerMapButton.pack( padx=10, ipadx=5, ipady=5, anchor='w')
 
-        self.statusBar = tk.Label(self, text= 'Disconnected', anchor='e', bd=1, relief=tk.SUNKEN)
+        self.statusBar = tk.Label(self.secondMainFrame, text= 'Disconnected', anchor='e', bd=1, relief=tk.SUNKEN)
         self.statusBar.pack(side=tk.BOTTOM, fill=tk.X, pady=1)
-
 
     def button1_clicked(self, value):
         print("Button1 {} is pressed\n".format(value))
