@@ -7,7 +7,7 @@ from token import EXACT_TOKEN_TYPES
 from mcp2210 import Mcp2210, Mcp2210GpioDesignation, Mcp2210GpioDirection
 import hid
 
-from test_1_092722 import mcp_init
+
 
 class intF:
     connStatus = 0
