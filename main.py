@@ -167,7 +167,7 @@ class mcpAPI():
         print("Sending Byte: {}\n".format(payload))
         tx_data = bytes(payload)
         temp_txData = struct.unpack('4B', struct.pack('>I', payload))
-        
+        print( "Value of Temp txData: {}  leb: {}".format(temp_txData, len(temp_txData)))
         for i in range(4):
             print("Temp_txData: {}".format(temp_txData[i]))
             rx_data = mcp.spi_exchange(bytes(temp_txData[i]), cs_pin_number=cs_pin)
@@ -1152,7 +1152,9 @@ class App(tk.Tk):
         elif (value == 6):
             webbrowser.open_new("lmx2581_6.pdf")
         elif ((value == 7) or (value == 8) or (value == 9) or (value == 10)):
-            webbrowser.open_new("lmx2581_2.pdf")
+            webbrowser.open_new("lmx2581_7.pdf")
+        elif ((value == 13) or (value == 15)):
+            webbrowser.open_new("lmx2581_15.pdf")
 
     def ConnectDevice(self):
         pass
