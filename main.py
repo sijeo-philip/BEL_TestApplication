@@ -1,8 +1,389 @@
 #!/usr/bin/env python
+from http.client import SERVICE_UNAVAILABLE
+from re import template
 import tkinter as tk
 from tkinter import ttk
 import webbrowser
 from tkinter import messagebox
+import time
+from token import EXACT_TOKEN_TYPES
+from mcp2210 import Mcp2210, Mcp2210GpioDesignation, Mcp2210GpioDirection
+import hid
+import struct 
+
+h = ""
+mcp = ""
+
+class intF:
+    connStatus = 0
+    vid = 0x04D8
+    pid = 0x00DE
+    serialNumber = ""
+    manufactuere = ""
+    product = ""
+    PLL1 = 0
+    PLL2 = 1
+
+    #R0 values
+    id_r0_value = ""
+    frac_dither_r0_value = ""
+    no_fcal_r0_value = ""
+    plln_r0_value = ""
+    pllnum_r0_value = ""
+
+    #R1 values
+    cpg_r1_value = ""
+    vcosel_r1_value = ""
+    pllnum_r1_value = ""
+    frac_order_r1_value = ""
+    pll_r_r1_value = ""
+
+    #R2 Value
+    osc2x_r2_value = ""
+    cpp_r2_value = ""
+    pllden_r2_value = ""
+
+    #R3 value
+    vcodiv_r3_value = ""
+    outb_pwr_r3_value = ""
+    outa_pwr_r3_value = ""
+    outb_pd_r3_value = ""
+    outa_pd_r3_value = ""
+
+    #R4 value
+    pfd_dly_r4_value = ""
+    fl_frce_r4_value = ""
+    fl_toc_r4_value = ""
+    fl_cpg_r4_value = ""
+    fl_cpg_bleed_r4_value = ""
+
+    #R5 value
+    outld_en_r5_value = ""
+    oscfreq_r5_value = ""
+    bufen_dis_r5_value = ""
+    vco_sel_mode_r5_value = ""
+    outb_mux_r5_value = ""
+    outa_mux_r5_value = ""
+    odly_r5_value = ""
+    mode_r5_value = ""
+    pwdn_mode_r5_value = ""
+    reset_r5_value = ""
+
+    #R6 value
+    rd_diagnostics_r6_value = ""
+    rdaddr_r6_value = ""
+    uWirelock_r6_value = ""
+
+    #R7 value
+    fl_select_r7_value = ""
+    fl_pinMode_r7_value = ""
+    fl_inv_r7_value = ""
+    muxout_select_r7_value = ""
+    mux_inv_r7_value = ""
+    muxout_pinmode_r7_value = ""
+    ld_select_r7_value = ""
+    ld_inv_r7_value = ""
+    ld_pinmode_r7_value = ""
+
+    #R8 R9 R10 values
+    reg_r8_value = ""
+    reg_r9_value = ""
+    reg_r10_value = ""
+
+    #R13 value
+    dld_err_cnt_r13_value = "" 
+    dld_pass_cnt_r13_value = ""
+    dld_tol_r13_value = ""
+
+    #R15 value
+    vcocap_man_r15_value = ""
+    vco_capcode_r15_value = ""
+
+
+try:
+    h = hid.device()
+    h.open(intF.vid, intF.pid)
+    intF.manufactuere = h.get_manufacturer_string()
+    intF.serialNumber = h.get_serial_number_string()
+    intF.product = h.get_product_string()
+    print("Manufactuere: {}".format(intF.manufactuere))
+    print("Product: {}".format(intF.product))
+    print("Serial Number: {}".format(intF.serialNumber))
+    
+    mcp = Mcp2210(serial_number=intF.serialNumber, vendor_id=intF.vid, product_id=intF.pid)
+    mcp.configure_spi_timing(chip_select_to_data_delay=0, last_data_byte_to_cs=0, delay_between_bytes=0)
+    intF.connStatus = 1
+
+except Exception as err:
+    print("Device is not Connected: {}".format(err))
+    intF.connStatus = 0
+
+
+
+class mcpAPI():
+    def mcp_init():
+        try:
+            h= hid.device()
+            h.open(intF.vid, intF.pid)
+            intF.manufactuere = h.get_manufacturer_string()
+            intF.product = h.get_product_string()
+            intF.serailNumber = h.get_serial_number_string()
+            print("Manufacturer: {}".format(intF.manufactuere))
+            print("Product: {}".format(intF.product))
+            print("Serail No: {}".format(intF.serailNumber))
+
+            mcp = Mcp2210(serial_number = intF.serailNumber, vendor_id= intF.vid, product_id= intF.pid)
+            mcp.configure_spi_timing(chip_select_to_data_delay=0, last_data_byte_to_cs=0, delay_between_bytes=0)
+            intF.connStatus = 1
+        except Exception as err:
+            print("Device is not connected: {}".format(err))
+            intF.connStatus = 0
+
+    def gpio_mode(pin, value):
+        mcp.set_gpio_designation(pin, Mcp2210GpioDesignation.GPIO)
+        if 1 == value:
+            mcp.set_gpio_direction(pin, Mcp2210GpioDirection.INPUT)
+        elif 0 == value:
+            mcp.set_gpio_direction(pin, Mcp2210GpioDirection.OUTPUT)
+
+    def gpio_write(pin, value):
+        mcp.set_gpio_output_value(pin, value)
+
+    def gpio_read(pin):
+        return mcp.get_gpio_value(pin)
+
+    def spi_init(cs_pin):
+        if(intF.PLL1 == cs_pin):
+            print("Initiating the PLL1...")
+        else:
+            print("Initiating the PLL2...")
+        mcp.set_gpio_designation(cs_pin, Mcp2210GpioDesignation.CHIP_SELECT)
+
+    def spi_write(cs_pin, payload):
+        print("Sending Byte: {}\n".format(payload))
+        tx_data = bytes(payload)
+        temp_txData = struct.unpack('4B', struct.pack('>I', payload))
+        
+        for i in range(4):
+            print("Temp_txData: {}".format(temp_txData[i]))
+            rx_data = mcp.spi_exchange(bytes(temp_txData[i]), cs_pin_number=cs_pin)
+            print("SPI RX_Data: {}".format(rx_data))
+        #rx_data = mcp.spi_exchange(tx_data, cs_pin_number=cs_pin)
+        #print("SPI RX_DATA: {}".format(rx_data))
+    
+    def spi_write_payload(button, value):
+        print("Received value: {}\nButton: {}".format(value, button))
+        if 0 == value:
+            print("Reg: 0")
+            tempList = [int(intF.id_r0_value.get()), int(intF.frac_dither_r0_value.get()), int(intF.no_fcal_r0_value.get()), int(intF.plln_r0_value.get()), int(intF.pllnum_r0_value.get())]
+            print("ID: {}  Frac Dither: {}  No Fcal: {}  PLL No: {}  PLL Num: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]))
+            tempByte = 0
+            tempByte = tempByte<<1|tempList[0]
+            tempByte = tempByte<<2|tempList[1]
+            tempByte = tempByte<<1|tempList[2]
+            tempByte = tempByte<<12|tempList[3]
+            tempByte = tempByte<<12|tempList[4]
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+           
+        elif 1 == value:
+            print("Reg:  1")
+            tempList = [int(intF.cpg_r1_value.get()), int(intF.vco_sel_mode_r5_value.get()), int(intF.pllnum_r0_value.get()), int(intF.frac_order_r1_value.get()), int(intF.pll_r_r1_value.get())]
+            print("CPG: {}  VCO SEL: {}  PLL Num: {}  FRAC Order: {}  PLL R: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]))
+            tempByte = 0
+            tempByte = tempByte<<5|tempList[0]
+            tempByte = tempByte<<2|tempList[1]
+            tempByte = tempByte<<10|tempList[2]
+            tempByte = tempByte<<3|tempList[3]
+            tempByte = tempByte<<8|tempList[4]
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 2 == value:
+            print("Reg:  2")
+            tempList = [int(intF.osc2x_r2_value.get()), int(intF.cpp_r2_value.get()), int(intF.pllden_r2_value.get())]
+            print("OSC 2X: {}  CPP: {}  PLL DEN: {}".format(tempList[0], tempList[1], tempList[2]))
+            tempByte = 0
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<1|tempList[0]
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<1|tempList[1]
+            tempByte = tempByte<<1|1
+            tempByte = tempByte<<22|tempList[2]
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 3 == value:
+            print("Reg:  3")
+            tempList = [int(intF.vcodiv_r3_value.get()), int(intF.outb_pwr_r3_value.get()), int(intF.outa_pwr_r3_value.get()), int(intF.outb_pd_r3_value.get()), int(intF.outa_pd_r3_value.get())]
+            print("VCO Div: {}  OutB Pwr: {}  OutA Pwr: {}  OutB PD: {}  OutA PD: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]))
+            tempByte = 0
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<1|1
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<5|tempList[0]
+            tempByte = tempByte<<6|tempList[1]
+            tempByte = tempByte<<6|tempList[2]
+            tempByte = tempByte<<1|tempList[3]
+            tempByte = tempByte<<1|tempList[4]
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 4 == value:
+            print("Reg:  4")
+            tempList = [int(intF.pfd_dly_r4_value.get()), int(intF.fl_frce_r4_value.get()), int(intF.fl_toc_r4_value.get()), int(intF.fl_cpg_r4_value.get()), int(intF.fl_cpg_bleed_r4_value.get())]
+            print("PFD DLY: {}  FL FRCE: {}  FL TOC: {}  FL CPG: {}  CPG Bleed: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]))
+            tempByte = 0
+            tempByte = tempByte<<3|tempList[0]
+            tempByte = tempByte<<1|tempList[1]
+            tempByte = tempByte<<12|tempList[2]
+            tempByte = tempByte<<5|tempList[3]
+            tempByte = tempByte<<1|1
+            tempByte = tempByte<<6|tempList[4]
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 5 == value:
+            print("Reg:  5")
+            tempList = [int(intF.outld_en_r5_value.get()), int(intF.oscfreq_r5_value.get()), int(intF.bufen_dis_r5_value.get()), int(intF.vco_sel_mode_r5_value.get()), int(intF.outb_mux_r5_value.get()), int(intF.outa_mux_r5_value.get()), int(intF.odly_r5_value.get()), int(intF.mode_r5_value.get()), int(intF.pwdn_mode_r5_value.get()), int(intF.reset_r5_value.get())]
+            print("Out LDEN: {} Osc Freq: {}  Buf EN Dis: {}  VCO Sel Mode: {}  OutB Mux: {}  OutA Mux: {}  O Dly: {}  Mode: {}  Pw DN Mode: {}  Reset: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5], tempList[6], tempList[7], tempList[8], tempList[9]))
+            tempByte = 0
+            tempByte = tempByte<<7|0
+            tempByte = tempByte<<1|tempList[0]
+            tempByte = tempByte<<3|tempList[1]
+            tempByte = tempByte<<1|tempList[2]
+            tempByte = tempByte<<3|0
+            tempByte = tempByte<<2|tempList[3]
+            tempByte = tempByte<<2|tempList[4]
+            tempByte = tempByte<<2|tempList[5]
+            tempByte = tempByte<<1|tempList[6]
+            tempByte = tempByte<<2|tempList[7]
+            tempByte = tempByte<<3|tempList[8]
+            tempByte = tempByte<<1|tempList[9]
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 6 == value:
+            print("Reg:  6")
+            tempList = [int(intF.rd_diagnostics_r6_value.get()), int(intF.rdaddr_r6_value.get()), int(intF.uWirelock_r6_value.get())]
+            print("RD Diagnostics: {}  RD AddrL: {}  uWire Lock: {}".format(tempList[0], tempList[1], tempList[2]))
+            tempByte = 0
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<20|tempList[0]
+            tempByte = tempByte<<1|1
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<4|tempList[1]
+            tempByte = tempByte<<1|tempList[2]
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 7 == value:
+            print("Reg:  7")
+            tempList = [int(intF.fl_select_r7_value.get()), int(intF.fl_pinMode_r7_value.get()), int(intF.fl_inv_r7_value.get()), int(intF.muxout_select_r7_value.get()), int(intF.mux_inv_r7_value.get()), int(intF.muxout_pinmode_r7_value.get()), int(intF.ld_select_r7_value.get()), int(intF.ld_inv_r7_value.get()), int(intF.ld_pinmode_r7_value.get())]
+            print("FL Select: {}  FL Pinmode: {}  FL Inv: {}  Mux out Select: {}  Mux Inv: {}  Mux Out Pinmode: {}  LD Select: {}  LD Inv: {}  LD Pinmode: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5], tempList[6], tempList[7], tempList[8]))
+            tempByte = 0
+            tempByte = tempByte<<1|0
+            tempByte = tempByte<<5|tempList[0]
+            tempByte = tempByte<<3|tempList[1]
+            tempByte = tempByte<<1|tempList[2]
+            tempByte = tempByte<<5|tempList[3]
+            tempByte = tempByte<<1|tempList[4]
+            tempByte = tempByte<<3|tempList[5]
+            tempByte = tempByte<<5|tempList[6]
+            tempByte = tempByte<<1|tempList[7]
+            tempByte = tempByte<<3|tempList[8]
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 8 == value:
+            print("Reg:  8")
+            tempList = [int(intF.reg_r8_value.get())]
+            print("R8: {}".format(tempList[0]))
+            tempByte = 0
+            tempByte = tempByte<<12|519
+            tempByte = tempByte<<12|3547
+            tempByte = tempByte<<4|15
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 9 == value:
+            print("Reg:  9")
+            tempList = [int(intF.reg_r9_value.get())]
+            print("R9: {}".format(tempList[0]))
+            tempByte = 0
+            tempByte = tempByte<<12|60
+            tempByte = tempByte<<12|124
+            tempByte = tempByte<<4|3
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 10 == value:
+            print("Reg: 10")  
+            tempList = [int(intF.reg_r10_value.get())]
+            print("R10: {}".format(tempList[0]))
+            tempByte = 0
+            tempByte = tempByte<<12|528
+            tempByte = tempByte<<12|80
+            tempByte = tempByte<<4|12
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 13 == value:
+            print("Reg:  13")
+            tempList = [int(intF.dld_err_cnt_r13_value.get()), int(intF.dld_pass_cnt_r13_value.get()), int(intF.dld_tol_r13_value.get())]
+            print("DLD Err Cnt: {}  DLD Pass Cnt: {}  DLD Tol: {}".format(tempList[0], tempList[1], tempList[2]))
+            tempByte = 0
+            tempByte = tempByte<<4|tempList[0]
+            tempByte = tempByte<<10|tempList[1]
+            tempByte = tempByte<<3|tempList[2]
+            tempByte = tempByte<<11|1040
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 15 == value:
+            print("Reg:  15")
+            tempList = [int(intF.vcocap_man_r15_value.get()), int(intF.vco_capcode_r15_value.get())]
+            print("VCO Cap Man: {}  VCO Cap Code: {}".format(tempList[0], tempList[1]))
+            tempByte = 0
+            tempByte = tempByte<<19|4351
+            tempByte = tempByte<<1|tempList[0]
+            tempByte = tempByte<<8|tempList[1]
+            tempByte = tempByte<<4|int(value)
+            print(tempByte)
+            mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
 
 class App(tk.Tk):
     def __init__(self):
@@ -29,69 +410,123 @@ class App(tk.Tk):
         self.scrollBar_updwn = ttk.Scrollbar(self.mainFrame, orient=tk.VERTICAL, command=self.mainCanvas.yview)
         self.scrollBar_updwn.pack(side=tk.RIGHT, fill=tk.Y)
 
+
         id_r0_var = tk.IntVar()
+        intF.id_r0_value = id_r0_var
         frac_dither_r0_var = tk.IntVar()
+        intF.frac_dither_r0_value = frac_dither_r0_var
         no_fcal_r0_var = tk.IntVar()
+        intF.no_fcal_r0_value = no_fcal_r0_var
         plln_r0_var = tk.IntVar()
+        intF.plln_r0_value = plln_r0_var
         pllnum_r0_var = tk.IntVar()
+        intF.pllnum_r0_value = pllnum_r0_var
 
         cpg_r1_var = tk.IntVar()
+        intF.cpg_r1_value = cpg_r1_var
         vcosel_r1_var = tk.IntVar()
+        intF.vcosel_r1_value = vcosel_r1_var
         pllnum_r1_var = tk.IntVar()
+        intF.pllnum_r1_value = pllnum_r1_var
         frac_order_r1_var = tk.IntVar()
+        intF.frac_order_r1_value = frac_order_r1_var
         pll_r_r1_var = tk.IntVar()
+        intF.pll_r_r1_value = pll_r_r1_var
 
         osc2x_r2_var = tk.IntVar()
+        intF.osc2x_r2_value = osc2x_r2_var
         cpp_r2_var = tk.IntVar()
+        intF.cpp_r2_value = cpp_r2_var
         pllden_r2_var = tk.IntVar()
+        intF.pllden_r2_value = pllden_r2_var
 
         vcodiv_r3_var = tk.IntVar()
+        intF.vcodiv_r3_value = vcodiv_r3_var
         outb_pwr_r3_var = tk.IntVar()
+        intF.outb_pwr_r3_value = outb_pwr_r3_var
         outa_pwr_r3_var = tk.IntVar()
+        intF.outa_pwr_r3_value = outa_pwr_r3_var
         outb_pd_r3_var = tk.IntVar()
+        intF.outb_pd_r3_value = outb_pd_r3_var
         outa_pd_r3_var = tk.IntVar()
+        intF.outa_pd_r3_value = outa_pd_r3_var
 
         pfd_dly_r4_var = tk.IntVar()
+        intF.pfd_dly_r4_value = pfd_dly_r4_var
         fl_frce_r4_var = tk.IntVar()
+        intF.fl_frce_r4_value = fl_frce_r4_var
         fl_toc_r4_var = tk.IntVar()
+        intF.fl_toc_r4_value = fl_toc_r4_var
         fl_cpg_r4_var = tk.IntVar()
+        intF.fl_cpg_r4_value = fl_cpg_r4_var
         cpg_bleed_r4_var = tk.IntVar()
+        intF.fl_cpg_bleed_r4_value = cpg_bleed_r4_var
 
         outld_en_r5_var = tk.IntVar()
+        intF.outld_en_r5_value = outld_en_r5_var
         oscfreq_r5_var = tk.IntVar()
+        intF.oscfreq_r5_value = oscfreq_r5_var
         bufen_dis_r5_var = tk.IntVar()
+        intF.bufen_dis_r5_value = bufen_dis_r5_var
         vco_sel_mode_r5_var = tk.IntVar()
+        intF.vco_sel_mode_r5_value = vco_sel_mode_r5_var
         outb_mux_r5_var = tk.IntVar()
+        intF.outb_mux_r5_value = outb_mux_r5_var
         outa_mux_r5_var = tk.IntVar()
+        intF.outa_mux_r5_value = outa_mux_r5_var
         odly_r5_var = tk.IntVar()
+        intF.odly_r5_value = odly_r5_var
         mode_r5_var = tk.IntVar()
+        intF.mode_r5_value = mode_r5_var
         pwdn_mode_r5_var = tk.IntVar()
+        intF.pwdn_mode_r5_value = pwdn_mode_r5_var
         reset_r5_var = tk.IntVar()
+        intF.reset_r5_value = reset_r5_var
 
         rd_diagnostics_r6_var = tk.IntVar()
+        intF.rd_diagnostics_r6_value = rd_diagnostics_r6_var
         rdaddr_r6_var = tk.IntVar()
+        intF.rdaddr_r6_value = rdaddr_r6_var
         uWirelock_r6_var = tk.IntVar()
+        intF.uWirelock_r6_value = uWirelock_r6_var
 
         fl_select_r7_var = tk.IntVar()
+        intF.fl_select_r7_value = fl_select_r7_var
         fl_pinmode_r7_var = tk.IntVar()
+        intF.fl_pinMode_r7_value = fl_pinmode_r7_var
         fl_inv_r7_var = tk.IntVar()
+        intF.fl_inv_r7_value = fl_inv_r7_var
         muxout_select_r7_var = tk.IntVar()
+        intF.muxout_select_r7_value = muxout_select_r7_var
         mux_inv_r7_var = tk.IntVar()
+        intF.mux_inv_r7_value = mux_inv_r7_var
         muxout_pinmode_r7_var = tk.IntVar()
+        intF.muxout_pinmode_r7_value = muxout_pinmode_r7_var
         ld_select_r7_var = tk.IntVar()
+        intF.ld_select_r7_value = ld_select_r7_var
         ld_inv_r7_var = tk.IntVar()
+        intF.ld_inv_r7_value = ld_inv_r7_var
         ld_pinmode_r7_var = tk.IntVar()
+        intF.ld_pinmode_r7_value = ld_pinmode_r7_var
 
         reg_value_r8 = tk.IntVar()
+        intF.reg_r8_value = reg_value_r8
         reg_value_r9 = tk.IntVar()
+        intF.reg_r9_value = reg_value_r9
         reg_value_r10 = tk.IntVar()
+        intF.reg_r10_value = reg_value_r10
 
         dld_err_cnt_r13_var = tk.IntVar()
+        intF.dld_err_cnt_r13_value = dld_err_cnt_r13_var
         dld_pass_cnt_r13_var = tk.IntVar()
+        intF.dld_pass_cnt_r13_value = dld_pass_cnt_r13_var
         dld_tol_r13_var = tk.IntVar()
+        intF.dld_tol_r13_value = dld_tol_r13_var
 
         vcocap_man_r15_var = tk.IntVar()
+        intF.vcocap_man_r15_value = vcocap_man_r15_var
         vco_capcode_r15_var = tk.IntVar()
+        intF.vco_capcode_r15_value = vco_capcode_r15_var
 
         #Configure the Canvas
         self.mainCanvas.configure(yscrollcommand=self.scrollBar_updwn.set)
@@ -673,16 +1108,29 @@ class App(tk.Tk):
         self.connectButton = ttk.Button(self.secondMainFrame, text="Connect", command=self.ConnectDevice)
         self.connectButton.pack(padx= 10, ipadx=5, ipady=5, anchor='e', side=tk.RIGHT)
 
-        self.statusBar = tk.Label(self, text= 'Disconnected', anchor='e', bd=1, relief=tk.SUNKEN)
+        if intF.connStatus == 0:
+            self.statusBar = tk.Label(self, text= 'Disconnected', anchor='e', bd=1, relief=tk.SUNKEN)
+        else:
+            self.statusBar = tk.Label(self, text= 'Connected', anchor='e', bd=1, relief=tk.SUNKEN)
         self.statusBar.pack(side=tk.BOTTOM, fill=tk.X, pady=1)
 
 
 
     def button1_clicked(self, value):
-        print("Button1 {} is pressed\n".format(value))
+        print("Button1 {} is pressed".format(value))
+        if 1 == intF.connStatus:
+            print("Writing SPI: ")
+            mcpAPI.spi_write_payload(intF.PLL1, value)
+        else:
+            print("Device is Not Connected")
 
     def button2_clicked(self, value):
-        print("Button2 {} is pressed\n".format(value))
+        print("Button2 {} is pressed".format(value))
+        if 1 == intF.connStatus:
+            print("Writing SPI: ")
+            mcpAPI.spi_write_payload(intF.PLL2, value)
+        else:
+            print("Device is Not Connected")
 
     def button3_clicked(self, value):
         if (value == 0):
