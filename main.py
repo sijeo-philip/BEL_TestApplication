@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from http.client import SERVICE_UNAVAILABLE
+from logging import disable
 from re import template
 import tkinter as tk
 from tkinter import ttk
@@ -102,7 +103,9 @@ class intF:
     #R15 value
     vcocap_man_r15_value = ""
     vco_capcode_r15_value = ""
-
+    
+    #payloads
+    spi_rxData = ""
 
 try:
     h = hid.device()
@@ -165,7 +168,8 @@ class mcpAPI():
 
     def spi_write(cs_pin, payload):
         print("Sending Byte: {}\n".format(payload))
-        tx_data = bytes(payload)
+        #tx_data = bytes(payload)
+        intF.spi_rxData = payload
         #print(tx_data)
         #rx_data = mcp.spi_exchange(tx_data, cs_pin_number = cs_pin)
         #"""
@@ -185,6 +189,7 @@ class mcpAPI():
         rx_data = mcp.spi_exchange(temp_txByteData, cs_pin_number=cs_pin)
         print("SPI RX_DATA: {}".format(rx_data))
         #"""
+        
 
     def spi_write_payload(button, value):
         print("Received value: {}\nButton: {}".format(value, button))
@@ -1136,6 +1141,7 @@ class App(tk.Tk):
         if 1 == intF.connStatus:
             print("Writing SPI: ")
             mcpAPI.spi_write_payload(intF.PLL1, value)
+            messagebox.showinfo(messagebox.INFO, "0x%x is sent to R%d of PLL1" %(intF.spi_rxData, value))
         else:
             print("Device is Not Connected")
 
@@ -1144,6 +1150,7 @@ class App(tk.Tk):
         if 1 == intF.connStatus:
             print("Writing SPI: ")
             mcpAPI.spi_write_payload(intF.PLL2, value)
+            messagebox.showinfo(messagebox.INFO, "0x%x is sent to R%d of PLL2" %(intF.spi_rxData, value))
         else:
             print("Device is Not Connected")
 
