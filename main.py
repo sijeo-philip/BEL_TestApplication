@@ -166,15 +166,26 @@ class mcpAPI():
     def spi_write(cs_pin, payload):
         print("Sending Byte: {}\n".format(payload))
         tx_data = bytes(payload)
+        #print(tx_data)
+        #rx_data = mcp.spi_exchange(tx_data, cs_pin_number = cs_pin)
+        #"""
         temp_txData = struct.unpack('4B', struct.pack('>I', payload))
+        temp_txByteArrayData = bytearray()
+        for i in range(len(temp_txData)-1, -1, -1):
+            temp_txByteArrayData.append(temp_txData[i])
+        temp_txByteData = bytes(temp_txByteArrayData)
         print( "Value of Temp txData: {}  leb: {}".format(temp_txData, len(temp_txData)))
+        """
         for i in range(4):
             print("Temp_txData: {}".format(temp_txData[i]))
             rx_data = mcp.spi_exchange(bytes(temp_txData[i]), cs_pin_number=cs_pin)
+            #rx_data = temp_txData.append(mcp.spi_exchange(temp_txData[i], cs_pin_number=cs_pin))
             print("SPI RX_Data: {}".format(rx_data))
-        #rx_data = mcp.spi_exchange(tx_data, cs_pin_number=cs_pin)
-        #print("SPI RX_DATA: {}".format(rx_data))
-    
+        """
+        rx_data = mcp.spi_exchange(temp_txByteData, cs_pin_number=cs_pin)
+        print("SPI RX_DATA: {}".format(rx_data))
+        #"""
+
     def spi_write_payload(button, value):
         print("Received value: {}\nButton: {}".format(value, button))
         if 0 == value:
