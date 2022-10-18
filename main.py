@@ -1144,10 +1144,7 @@ class App(tk.Tk):
         self.connectButton = ttk.Button(self.secondMainFrame, text="Connect", command=self.ConnectDevice)
         self.connectButton.pack(padx= 10, ipadx=5, ipady=5, anchor='e', side=tk.RIGHT)
 
-        if intF.connStatus == 0:
-            self.statusBar = tk.Label(self, text= 'Disconnected', anchor='e', bd=1, relief=tk.SUNKEN)
-        else:
-            self.statusBar = tk.Label(self, text= 'Connected', anchor='e', bd=1, relief=tk.SUNKEN)
+        self.statusBar = tk.Label(self, text='Disconnected', anchor='e', bd=1, relief=tk.SUNKEN)
         self.statusBar.pack(side=tk.BOTTOM, fill=tk.X, pady=1)
 
 
@@ -1192,6 +1189,10 @@ class App(tk.Tk):
 
     def ConnectDevice(self):
         intF.connect_device()
+        if intF.connStatus == 1:
+            self.statusBar['text'] = 'Connected'
+        elif intF.connStatus == 0:
+            self.statusBar['text'] = 'Disconnected'
 
     def register_data_capture(self):
         pass
