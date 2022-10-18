@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b78d4c80-7b80-433e-be2c-c9e8a3bbe097" name="Changes" comment="Status bar of the Application will display Connected, Disconnected as per the connection status of the Device.">
+    <list default="true" id="322c3e30-dd7a-41a8-9c49-9775cf9b3e85" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/BEL_TestApplication.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BEL_TestApplication.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
@@ -19,7 +22,7 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectId" id="2GIko4CuHVgAMqr3tXI6Bj37wT5" />
+  <component name="ProjectId" id="2GJBa55vETUnF7bg8831u5H2Uef" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -27,50 +30,19 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true"
+    "RunOnceActivity.ShowReadmeOnStart": "true"
   }
 }]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="b78d4c80-7b80-433e-be2c-c9e8a3bbe097" name="Changes" comment="" />
-      <created>1666083656989</created>
+      <changelist id="322c3e30-dd7a-41a8-9c49-9775cf9b3e85" name="Changes" comment="" />
+      <created>1666096866777</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1666083656989</updated>
+      <updated>1666096866777</updated>
     </task>
-    <task id="LOCAL-00001" summary="Font changed to Tahoma from Helvetica">
-      <created>1666083933393</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1666083933393</updated>
-    </task>
-    <task id="LOCAL-00002" summary="Connect to be board is done by pressing the Connect Button">
-      <created>1666092416466</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1666092416466</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Connect to be board is done by pressing the Connect Button">
-      <created>1666092432444</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1666092432444</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Status bar of the Application will display Connected, Disconnected as per the connection status of the Device.">
-      <created>1666093341074</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1666093341074</updated>
-    </task>
-    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -83,11 +55,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="Font changed to Tahoma from Helvetica" />
-    <MESSAGE value="Connect to be board is done by pressing the Connect Button" />
-    <MESSAGE value="Status bar of the Application will display Connected, Disconnected as per the connection status of the Device." />
-    <option name="LAST_COMMIT_MESSAGE" value="Status bar of the Application will display Connected, Disconnected as per the connection status of the Device." />
   </component>
 </project>

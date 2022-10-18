@@ -105,18 +105,22 @@ vcocap_man_r15_value = ""
 vco_capcode_r15_value = ""
 
 # payloads
-spi_rxData = ""
+spi_rxData = 0
 
 def connect_device():
+    global connStatus
+    global h
+    global vid, pid
+    global mcp, product, serialNumber, manufactuere
     try:
         h = hid.device()
         h.open(vid, pid)
         manufactuere = h.get_manufacturer_string()
         serialNumber = h.get_serial_number_string()
         product = h.get_product_string()
-        print("Manufactuer: {}".format(intF.manufactuere))
-        print("Product: {}".format(intF.product))
-        print("Serial Number: {}".format(intF.serialNumber))
+        print("Manufactuer: {}".format(manufactuere))
+        print("Product: {}".format(product))
+        print("Serial Number: {}".format(serialNumber))
 
         mcp = Mcp2210(serial_number=serialNumber, vendor_id=vid, product_id=pid)
         mcp.configure_spi_timing(chip_select_to_data_delay=0, last_data_byte_to_cs=0, delay_between_bytes=0)
@@ -136,256 +140,8 @@ def connect_device():
 
 
 
-class mcpAPI():
-
-
-
-    def spi_write(cs_pin, payload):
-        print("Sending Byte: {}\n".format(payload))
-        intF.spi_rxData = payload
-
-        temp_txData = struct.unpack('4B', struct.pack('>I', payload))
-        temp_txByteArrayData = bytearray()
-        for i in range(len(temp_txData)):
-            temp_txByteArrayData.append(temp_txData[i])
-        temp_txByteData = bytes(temp_txByteArrayData)
-        print( "Value of Temp txData: {}  leb: {}".format(temp_txData, len(temp_txData)))
-        """
-        for i in range(4):
-            print("Temp_txData: {}".format(temp_txData[i]))
-            rx_data = mcp.spi_exchange(bytes(temp_txData[i]), cs_pin_number=cs_pin)
-            #rx_data = temp_txData.append(mcp.spi_exchange(temp_txData[i], cs_pin_number=cs_pin))
-            print("SPI RX_Data: {}".format(rx_data))
-        """
-        try:
-            assert (cs_pin == 0 or cs_pin == 1)
-            mcp.set_gpio_output_value(cs_pin, 1)
-            time.sleep(0.001)
-            mcp.set_gpio_output_value(cs_pin, 0)
-            rx_data = mcp.spi_exchange(temp_txByteData, cs_pin_number=2)
-            print("SPI RX_DATA: {}".format(rx_data))
-            mcp.set_gpio_output_value(cs_pin, 1)
-            time.sleep(0.001)
-            mcp.set_gpio_output_value(cs_pin, 0)
-        except:
-            messagebox.showinfo("error", "Wrong CS PIN Selected!!")
-
-
-    def spi_write_payload(button, value):
-        print("Received value: {}\nButton: {}".format(value, button))
-        if 0 == value:
-            print("Reg: 0")
-            tempList = [int(id_r0_value.get()), int(frac_dither_r0_value.get()), int(no_fcal_r0_value.get()), int(plln_r0_value.get()), int(pllnum_r0_value.get())]
-            print("ID: {}  Frac Dither: {}  No Fcal: {}  PLL No: {}  PLL Num: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]))
-            tempByte = 0
-            tempByte = tempByte<<1|tempList[0]
-            tempByte = tempByte<<2|tempList[1]
-            tempByte = tempByte<<1|tempList[2]
-            tempByte = tempByte<<12|tempList[3]
-            tempByte = tempByte<<12|tempList[4]
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-            #mcpAPI.spi_init(button)
-            mcpAPI.spi_write(button, tempByte)
-
-           
-        elif 1 == value:
-            print("Reg:  1")
-            tempList = [int(cpg_r1_value.get()), int(vco_sel_mode_r5_value.get()), int(pllnum_r0_value.get()), int(frac_order_r1_value.get()), int(pll_r_r1_value.get())]
-            print("CPG: {}  VCO SEL: {}  PLL Num: {}  FRAC Order: {}  PLL R: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]))
-            tempByte = 0
-            tempByte = tempByte<<5|tempList[0]
-            tempByte = tempByte<<2|tempList[1]
-            tempByte = tempByte<<10|tempList[2]
-            tempByte = tempByte<<3|tempList[3]
-            tempByte = tempByte<<8|tempList[4]
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
-        elif 2 == value:
-            print("Reg:  2")
-            tempList = [int(osc2x_r2_value.get()), int(cpp_r2_value.get()), int(pllden_r2_value.get())]
-            print("OSC 2X: {}  CPP: {}  PLL DEN: {}".format(tempList[0], tempList[1], tempList[2]))
-            tempByte = 0
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<1|tempList[0]
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<1|tempList[1]
-            tempByte = tempByte<<1|1
-            tempByte = tempByte<<22|tempList[2]
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
-        elif 3 == value:
-            print("Reg:  3")
-            tempList = [int(vcodiv_r3_value.get()), int(outb_pwr_r3_value.get()), int(outa_pwr_r3_value.get()), int(outb_pd_r3_value.get()), int(outa_pd_r3_value.get())]
-            print("VCO Div: {}  OutB Pwr: {}  OutA Pwr: {}  OutB PD: {}  OutA PD: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]))
-            tempByte = 0
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<1|1
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<5|tempList[0]
-            tempByte = tempByte<<6|tempList[1]
-            tempByte = tempByte<<6|tempList[2]
-            tempByte = tempByte<<1|tempList[3]
-            tempByte = tempByte<<1|tempList[4]
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
-        elif 4 == value:
-            print("Reg:  4")
-            tempList = [int(pfd_dly_r4_value.get()), int(fl_frce_r4_value.get()), int(fl_toc_r4_value.get()), int(fl_cpg_r4_value.get()), int(fl_cpg_bleed_r4_value.get())]
-            print("PFD DLY: {}  FL FRCE: {}  FL TOC: {}  FL CPG: {}  CPG Bleed: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4]))
-            tempByte = 0
-            tempByte = tempByte<<3|tempList[0]
-            tempByte = tempByte<<1|tempList[1]
-            tempByte = tempByte<<12|tempList[2]
-            tempByte = tempByte<<5|tempList[3]
-            tempByte = tempByte<<1|1
-            tempByte = tempByte<<6|tempList[4]
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
-        elif 5 == value:
-            print("Reg:  5")
-            tempList = [int(outld_en_r5_value.get()), int(oscfreq_r5_value.get()), int(bufen_dis_r5_value.get()), int(vco_sel_mode_r5_value.get()), int(outb_mux_r5_value.get()), int(outa_mux_r5_value.get()), int(odly_r5_value.get()), int(mode_r5_value.get()), int(pwdn_mode_r5_value.get()), int(reset_r5_value.get())]
-            print("Out LDEN: {} Osc Freq: {}  Buf EN Dis: {}  VCO Sel Mode: {}  OutB Mux: {}  OutA Mux: {}  O Dly: {}  Mode: {}  Pw DN Mode: {}  Reset: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5], tempList[6], tempList[7], tempList[8], tempList[9]))
-            tempByte = 0
-            tempByte = tempByte<<7|0
-            tempByte = tempByte<<1|tempList[0]
-            tempByte = tempByte<<3|tempList[1]
-            tempByte = tempByte<<1|tempList[2]
-            tempByte = tempByte<<3|0
-            tempByte = tempByte<<2|tempList[3]
-            tempByte = tempByte<<2|tempList[4]
-            tempByte = tempByte<<2|tempList[5]
-            tempByte = tempByte<<1|tempList[6]
-            tempByte = tempByte<<2|tempList[7]
-            tempByte = tempByte<<3|tempList[8]
-            tempByte = tempByte<<1|tempList[9]
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
-        elif 6 == value:
-            print("Reg:  6")
-            tempList = [int(rd_diagnostics_r6_value.get()), int(rdaddr_r6_value.get()), int(uWirelock_r6_value.get())]
-            print("RD Diagnostics: {}  RD AddrL: {}  uWire Lock: {}".format(tempList[0], tempList[1], tempList[2]))
-            tempByte = 0
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<20|tempList[0]
-            tempByte = tempByte<<1|1
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<4|tempList[1]
-            tempByte = tempByte<<1|tempList[2]
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
-        elif 7 == value:
-            print("Reg:  7")
-            tempList = [int(fl_select_r7_value.get()), int(fl_pinMode_r7_value.get()), int(fl_inv_r7_value.get()), int(muxout_select_r7_value.get()), int(mux_inv_r7_value.get()), int(muxout_pinmode_r7_value.get()), int(ld_select_r7_value.get()), int(ld_inv_r7_value.get()), int(ld_pinmode_r7_value.get())]
-            print("FL Select: {}  FL Pinmode: {}  FL Inv: {}  Mux out Select: {}  Mux Inv: {}  Mux Out Pinmode: {}  LD Select: {}  LD Inv: {}  LD Pinmode: {}".format(tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5], tempList[6], tempList[7], tempList[8]))
-            tempByte = 0
-            tempByte = tempByte<<1|0
-            tempByte = tempByte<<5|tempList[0]
-            tempByte = tempByte<<3|tempList[1]
-            tempByte = tempByte<<1|tempList[2]
-            tempByte = tempByte<<5|tempList[3]
-            tempByte = tempByte<<1|tempList[4]
-            tempByte = tempByte<<3|tempList[5]
-            tempByte = tempByte<<5|tempList[6]
-            tempByte = tempByte<<1|tempList[7]
-            tempByte = tempByte<<3|tempList[8]
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
-        elif 8 == value:
-            print("Reg:  8")
-            tempList = [int(reg_r8_value.get())]
-            print("R8: {}".format(tempList[0]))
-            tempByte = 0
-            tempByte = tempByte<<12|519
-            tempByte = tempByte<<12|3547
-            tempByte = tempByte<<4|15
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
-        elif 9 == value:
-            print("Reg:  9")
-            tempList = [int(reg_r9_value.get())]
-            print("R9: {}".format(tempList[0]))
-            tempByte = 0
-            tempByte = tempByte<<12|60
-            tempByte = tempByte<<12|124
-            tempByte = tempByte<<4|3
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
-        elif 10 == value:
-            print("Reg: 10")  
-            tempList = [int(reg_r10_value.get())]
-            print("R10: {}".format(tempList[0]))
-            tempByte = 0
-            tempByte = tempByte<<12|528
-            tempByte = tempByte<<12|80
-            tempByte = tempByte<<4|12
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
-        elif 13 == value:
-            print("Reg:  13")
-            tempList = [int(dld_err_cnt_r13_value.get()), int(dld_pass_cnt_r13_value.get()), int(dld_tol_r13_value.get())]
-            print("DLD Err Cnt: {}  DLD Pass Cnt: {}  DLD Tol: {}".format(tempList[0], tempList[1], tempList[2]))
-            tempByte = 0
-            tempByte = tempByte<<4|tempList[0]
-            tempByte = tempByte<<10|tempList[1]
-            tempByte = tempByte<<3|tempList[2]
-            tempByte = tempByte<<11|1040
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
-        elif 15 == value:
-            print("Reg:  15")
-            tempList = [int(vcocap_man_r15_value.get()), int(vco_capcode_r15_value.get())]
-            print("VCO Cap Man: {}  VCO Cap Code: {}".format(tempList[0], tempList[1]))
-            tempByte = 0
-            tempByte = tempByte<<19|4351
-            tempByte = tempByte<<1|tempList[0]
-            tempByte = tempByte<<8|tempList[1]
-            tempByte = tempByte<<4|int(value)
-            print(tempByte)
-
-            mcpAPI.spi_write(button, tempByte)
-
 class App(tk.Tk):
+
     def __init__(self):
         super().__init__()
         self.title("PLL SETTING APPLICATION")
@@ -410,6 +166,40 @@ class App(tk.Tk):
         self.scrollBar_updwn = ttk.Scrollbar(self.mainFrame, orient=tk.VERTICAL, command=self.mainCanvas.yview)
         self.scrollBar_updwn.pack(side=tk.RIGHT, fill=tk.Y)
 
+        global spi_rxData, mcp
+        # R0 values
+        global id_r0_value, frac_dither_r0_value, no_fcal_r0_value, plln_r0_value, pllnum_r0_value
+        # R1 values
+        global cpg_r1_value, vcosel_r1_value, pllnum_r1_value, frac_order_r1_value, pll_r_r1_value
+        # R2 Value
+        global osc2x_r2_value, cpp_r2_value, pllden_r2_value
+
+        # R3 value
+        global vcodiv_r3_value, outb_pwr_r3_value, outa_pwr_r3_value, outb_pd_r3_value, outa_pd_r3_value
+        # R4 value
+        global pfd_dly_r4_value, fl_frce_r4_value, fl_toc_r4_value, fl_cpg_r4_value, fl_cpg_bleed_r4_value
+
+        # R5 value
+        global outld_en_r5_value, oscfreq_r5_value, bufen_dis_r5_value, vco_sel_mode_r5_value, outb_mux_r5_value
+        global outa_mux_r5_value, odly_r5_value, mode_r5_value, pwdn_mode_r5_value, reset_r5_value
+
+        # R6 value
+        global rd_diagnostics_r6_value, rdaddr_r6_value, uWirelock_r6_value
+
+        # R7 value
+        global fl_select_r7_value, fl_pinMode_r7_value, fl_inv_r7_value, muxout_select_r7_value, mux_inv_r7_value
+        global muxout_pinmode_r7_value, ld_select_r7_value, ld_inv_r7_value, ld_pinmode_r7_value
+
+        # R8 R9 R10 values
+        global reg_r8_value, reg_r9_value, reg_r10_value
+
+        # R13 value
+        global dld_err_cnt_r13_value, dld_pass_cnt_r13_value, dld_tol_r13_value
+        # R15 value
+        global vcocap_man_r15_value, vco_capcode_r15_value
+
+        # payloads
+        global spi_rxData
 
         id_r0_var = tk.IntVar()
         id_r0_value = id_r0_var
@@ -1114,6 +904,7 @@ class App(tk.Tk):
 
 
     def button1_clicked(self, value):
+        global PLL1, spi_rxData
         print("Button1 {} is pressed".format(value))
         if 1 == connStatus:
             print("Writing SPI: ")
@@ -1123,6 +914,7 @@ class App(tk.Tk):
             print("Device is Not Connected")
 
     def button2_clicked(self, value):
+        global PLL2, spi_rxData
         print("Button2 {} is pressed".format(value))
         if 1 == connStatus:
             print("Writing SPI: ")
@@ -1152,6 +944,7 @@ class App(tk.Tk):
             webbrowser.open_new("lmx2581_15.pdf")
 
     def ConnectDevice(self):
+        global connStatus
         connect_device()
         if connStatus == 1:
             self.statusBar['text'] = 'Connected'
@@ -1172,6 +965,312 @@ class App(tk.Tk):
         except:
             messagebox.showinfo("error", "Enter a Valid Integer Value")
 
+
+class mcpAPI():
+    global spi_rxData, mcp
+    # R0 values
+    global id_r0_value, frac_dither_r0_value, no_fcal_r0_value, plln_r0_value, pllnum_r0_value
+    # R1 values
+    global cpg_r1_value, vcosel_r1_value, pllnum_r1_value, frac_order_r1_value, pll_r_r1_value
+    # R2 Value
+    global osc2x_r2_value, cpp_r2_value, pllden_r2_value
+
+    # R3 value
+    global vcodiv_r3_value, outb_pwr_r3_value, outa_pwr_r3_value, outb_pd_r3_value, outa_pd_r3_value
+    # R4 value
+    global pfd_dly_r4_value, fl_frce_r4_value, fl_toc_r4_value, fl_cpg_r4_value, fl_cpg_bleed_r4_value
+
+    # R5 value
+    global outld_en_r5_value, oscfreq_r5_value, bufen_dis_r5_value, vco_sel_mode_r5_value, outb_mux_r5_value
+    global outa_mux_r5_value, odly_r5_value, mode_r5_value, pwdn_mode_r5_value, reset_r5_value
+
+    # R6 value
+    global rd_diagnostics_r6_value, rdaddr_r6_value, uWirelock_r6_value
+
+    # R7 value
+    global fl_select_r7_value, fl_pinMode_r7_value, fl_inv_r7_value, muxout_select_r7_value, mux_inv_r7_value
+    global muxout_pinmode_r7_value, ld_select_r7_value, ld_inv_r7_value, ld_pinmode_r7_value
+
+    # R8 R9 R10 values
+    global reg_r8_value, reg_r9_value, reg_r10_value
+
+    # R13 value
+    global dld_err_cnt_r13_value, dld_pass_cnt_r13_value, dld_tol_r13_value
+    # R15 value
+    global vcocap_man_r15_value, vco_capcode_r15_value
+
+    # payloads
+
+
+    def spi_write(cs_pin, payload):
+        global  spi_rxData
+        print("Sending Byte: {}\n".format(payload))
+        spi_rxData = payload
+
+        temp_txData = struct.unpack('4B', struct.pack('>I', payload))
+        temp_txByteArrayData = bytearray()
+        for i in range(len(temp_txData)):
+            temp_txByteArrayData.append(temp_txData[i])
+        temp_txByteData = bytes(temp_txByteArrayData)
+        print("Value of Temp txData: {}  leb: {}".format(temp_txData, len(temp_txData)))
+        """
+        for i in range(4):
+            print("Temp_txData: {}".format(temp_txData[i]))
+            rx_data = mcp.spi_exchange(bytes(temp_txData[i]), cs_pin_number=cs_pin)
+            #rx_data = temp_txData.append(mcp.spi_exchange(temp_txData[i], cs_pin_number=cs_pin))
+            print("SPI RX_Data: {}".format(rx_data))
+        """
+        try:
+            assert (cs_pin == 0 or cs_pin == 1)
+            mcp.set_gpio_output_value(cs_pin, 1)
+            time.sleep(0.001)
+            mcp.set_gpio_output_value(cs_pin, 0)
+            rx_data = mcp.spi_exchange(temp_txByteData, cs_pin_number=2)
+            print("SPI RX_DATA: {}".format(rx_data))
+            mcp.set_gpio_output_value(cs_pin, 1)
+            time.sleep(0.001)
+            mcp.set_gpio_output_value(cs_pin, 0)
+        except:
+            messagebox.showinfo("error", "Wrong CS PIN Selected!!")
+
+    def spi_write_payload(button, value):
+        print("Received value: {}\nButton: {}".format(value, button))
+        if 0 == value:
+            print("Reg: 0")
+            tempList = [int(id_r0_value.get()), int(frac_dither_r0_value.get()), int(no_fcal_r0_value.get()),
+                        int(plln_r0_value.get()), int(pllnum_r0_value.get())]
+            print("ID: {}  Frac Dither: {}  No Fcal: {}  PLL No: {}  PLL Num: {}".format(tempList[0], tempList[1],
+                                                                                         tempList[2], tempList[3],
+                                                                                         tempList[4]))
+            tempByte = 0
+            tempByte = tempByte << 1 | tempList[0]
+            tempByte = tempByte << 2 | tempList[1]
+            tempByte = tempByte << 1 | tempList[2]
+            tempByte = tempByte << 12 | tempList[3]
+            tempByte = tempByte << 12 | tempList[4]
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+            # mcpAPI.spi_init(button)
+            mcpAPI.spi_write(button, tempByte)
+
+
+        elif 1 == value:
+            print("Reg:  1")
+            tempList = [int(cpg_r1_value.get()), int(vco_sel_mode_r5_value.get()), int(pllnum_r0_value.get()),
+                        int(frac_order_r1_value.get()), int(pll_r_r1_value.get())]
+            print("CPG: {}  VCO SEL: {}  PLL Num: {}  FRAC Order: {}  PLL R: {}".format(tempList[0], tempList[1],
+                                                                                        tempList[2], tempList[3],
+                                                                                        tempList[4]))
+            tempByte = 0
+            tempByte = tempByte << 5 | tempList[0]
+            tempByte = tempByte << 2 | tempList[1]
+            tempByte = tempByte << 10 | tempList[2]
+            tempByte = tempByte << 3 | tempList[3]
+            tempByte = tempByte << 8 | tempList[4]
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 2 == value:
+            print("Reg:  2")
+            tempList = [int(osc2x_r2_value.get()), int(cpp_r2_value.get()), int(pllden_r2_value.get())]
+            print("OSC 2X: {}  CPP: {}  PLL DEN: {}".format(tempList[0], tempList[1], tempList[2]))
+            tempByte = 0
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 1 | tempList[0]
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 1 | tempList[1]
+            tempByte = tempByte << 1 | 1
+            tempByte = tempByte << 22 | tempList[2]
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 3 == value:
+            print("Reg:  3")
+            tempList = [int(vcodiv_r3_value.get()), int(outb_pwr_r3_value.get()), int(outa_pwr_r3_value.get()),
+                        int(outb_pd_r3_value.get()), int(outa_pd_r3_value.get())]
+            print("VCO Div: {}  OutB Pwr: {}  OutA Pwr: {}  OutB PD: {}  OutA PD: {}".format(tempList[0], tempList[1],
+                                                                                             tempList[2], tempList[3],
+                                                                                             tempList[4]))
+            tempByte = 0
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 1 | 1
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 5 | tempList[0]
+            tempByte = tempByte << 6 | tempList[1]
+            tempByte = tempByte << 6 | tempList[2]
+            tempByte = tempByte << 1 | tempList[3]
+            tempByte = tempByte << 1 | tempList[4]
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 4 == value:
+            print("Reg:  4")
+            tempList = [int(pfd_dly_r4_value.get()), int(fl_frce_r4_value.get()), int(fl_toc_r4_value.get()),
+                        int(fl_cpg_r4_value.get()), int(fl_cpg_bleed_r4_value.get())]
+            print("PFD DLY: {}  FL FRCE: {}  FL TOC: {}  FL CPG: {}  CPG Bleed: {}".format(tempList[0], tempList[1],
+                                                                                           tempList[2], tempList[3],
+                                                                                           tempList[4]))
+            tempByte = 0
+            tempByte = tempByte << 3 | tempList[0]
+            tempByte = tempByte << 1 | tempList[1]
+            tempByte = tempByte << 12 | tempList[2]
+            tempByte = tempByte << 5 | tempList[3]
+            tempByte = tempByte << 1 | 1
+            tempByte = tempByte << 6 | tempList[4]
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 5 == value:
+            print("Reg:  5")
+            tempList = [int(outld_en_r5_value.get()), int(oscfreq_r5_value.get()), int(bufen_dis_r5_value.get()),
+                        int(vco_sel_mode_r5_value.get()), int(outb_mux_r5_value.get()), int(outa_mux_r5_value.get()),
+                        int(odly_r5_value.get()), int(mode_r5_value.get()), int(pwdn_mode_r5_value.get()),
+                        int(reset_r5_value.get())]
+            print(
+                "Out LDEN: {} Osc Freq: {}  Buf EN Dis: {}  VCO Sel Mode: {}  OutB Mux: {}  OutA Mux: {}  O Dly: {}  Mode: {}  Pw DN Mode: {}  Reset: {}".format(
+                    tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5], tempList[6],
+                    tempList[7], tempList[8], tempList[9]))
+            tempByte = 0
+            tempByte = tempByte << 7 | 0
+            tempByte = tempByte << 1 | tempList[0]
+            tempByte = tempByte << 3 | tempList[1]
+            tempByte = tempByte << 1 | tempList[2]
+            tempByte = tempByte << 3 | 0
+            tempByte = tempByte << 2 | tempList[3]
+            tempByte = tempByte << 2 | tempList[4]
+            tempByte = tempByte << 2 | tempList[5]
+            tempByte = tempByte << 1 | tempList[6]
+            tempByte = tempByte << 2 | tempList[7]
+            tempByte = tempByte << 3 | tempList[8]
+            tempByte = tempByte << 1 | tempList[9]
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 6 == value:
+            print("Reg:  6")
+            tempList = [int(rd_diagnostics_r6_value.get()), int(rdaddr_r6_value.get()), int(uWirelock_r6_value.get())]
+            print("RD Diagnostics: {}  RD AddrL: {}  uWire Lock: {}".format(tempList[0], tempList[1], tempList[2]))
+            tempByte = 0
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 20 | tempList[0]
+            tempByte = tempByte << 1 | 1
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 4 | tempList[1]
+            tempByte = tempByte << 1 | tempList[2]
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 7 == value:
+            print("Reg:  7")
+            tempList = [int(fl_select_r7_value.get()), int(fl_pinMode_r7_value.get()), int(fl_inv_r7_value.get()),
+                        int(muxout_select_r7_value.get()), int(mux_inv_r7_value.get()),
+                        int(muxout_pinmode_r7_value.get()), int(ld_select_r7_value.get()), int(ld_inv_r7_value.get()),
+                        int(ld_pinmode_r7_value.get())]
+            print(
+                "FL Select: {}  FL Pinmode: {}  FL Inv: {}  Mux out Select: {}  Mux Inv: {}  Mux Out Pinmode: {}  LD Select: {}  LD Inv: {}  LD Pinmode: {}".format(
+                    tempList[0], tempList[1], tempList[2], tempList[3], tempList[4], tempList[5], tempList[6],
+                    tempList[7], tempList[8]))
+            tempByte = 0
+            tempByte = tempByte << 1 | 0
+            tempByte = tempByte << 5 | tempList[0]
+            tempByte = tempByte << 3 | tempList[1]
+            tempByte = tempByte << 1 | tempList[2]
+            tempByte = tempByte << 5 | tempList[3]
+            tempByte = tempByte << 1 | tempList[4]
+            tempByte = tempByte << 3 | tempList[5]
+            tempByte = tempByte << 5 | tempList[6]
+            tempByte = tempByte << 1 | tempList[7]
+            tempByte = tempByte << 3 | tempList[8]
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 8 == value:
+            print("Reg:  8")
+            tempList = [int(reg_r8_value.get())]
+            print("R8: {}".format(tempList[0]))
+            tempByte = 0
+            tempByte = tempByte << 12 | 519
+            tempByte = tempByte << 12 | 3547
+            tempByte = tempByte << 4 | 15
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 9 == value:
+            print("Reg:  9")
+            tempList = [int(reg_r9_value.get())]
+            print("R9: {}".format(tempList[0]))
+            tempByte = 0
+            tempByte = tempByte << 12 | 60
+            tempByte = tempByte << 12 | 124
+            tempByte = tempByte << 4 | 3
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 10 == value:
+            print("Reg: 10")
+            tempList = [int(reg_r10_value.get())]
+            print("R10: {}".format(tempList[0]))
+            tempByte = 0
+            tempByte = tempByte << 12 | 528
+            tempByte = tempByte << 12 | 80
+            tempByte = tempByte << 4 | 12
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 13 == value:
+            print("Reg:  13")
+            tempList = [int(dld_err_cnt_r13_value.get()), int(dld_pass_cnt_r13_value.get()),
+                        int(dld_tol_r13_value.get())]
+            print("DLD Err Cnt: {}  DLD Pass Cnt: {}  DLD Tol: {}".format(tempList[0], tempList[1], tempList[2]))
+            tempByte = 0
+            tempByte = tempByte << 4 | tempList[0]
+            tempByte = tempByte << 10 | tempList[1]
+            tempByte = tempByte << 3 | tempList[2]
+            tempByte = tempByte << 11 | 1040
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
+
+        elif 15 == value:
+            print("Reg:  15")
+            tempList = [int(vcocap_man_r15_value.get()), int(vco_capcode_r15_value.get())]
+            print("VCO Cap Man: {}  VCO Cap Code: {}".format(tempList[0], tempList[1]))
+            tempByte = 0
+            tempByte = tempByte << 19 | 4351
+            tempByte = tempByte << 1 | tempList[0]
+            tempByte = tempByte << 8 | tempList[1]
+            tempByte = tempByte << 4 | int(value)
+            print(tempByte)
+
+            mcpAPI.spi_write(button, tempByte)
 
 
 if __name__ == '__main__':
