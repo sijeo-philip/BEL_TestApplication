@@ -15,8 +15,8 @@ import struct
 h = ""
 mcp = ""
 
-labelFont = ('Helvetica', 6)
-spinboxFont= ('Helvetica', 6)
+labelFont = ('Tahoma', 6)
+spinboxFont= ('Tahoma', 6)
 
 
 class intF:
