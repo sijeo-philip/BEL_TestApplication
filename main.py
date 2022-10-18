@@ -175,7 +175,7 @@ class mcpAPI():
         #"""
         temp_txData = struct.unpack('4B', struct.pack('>I', payload))
         temp_txByteArrayData = bytearray()
-        for i in range(len(temp_txData)-1, -1, -1):
+        for i in range(len(temp_txData)):
             temp_txByteArrayData.append(temp_txData[i])
         temp_txByteData = bytes(temp_txByteArrayData)
         print( "Value of Temp txData: {}  leb: {}".format(temp_txData, len(temp_txData)))
