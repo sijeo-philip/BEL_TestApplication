@@ -10,7 +10,8 @@ import time
 from token import EXACT_TOKEN_TYPES
 from mcp2210 import Mcp2210, Mcp2210GpioDesignation, Mcp2210GpioDirection
 import hid
-import struct 
+import struct
+import time
 
 h = ""
 mcp = ""
@@ -29,40 +30,40 @@ class intF:
     PLL1 = 0
     PLL2 = 1
 
-    #R0 values
+    # R0 values
     id_r0_value = ""
     frac_dither_r0_value = ""
     no_fcal_r0_value = ""
     plln_r0_value = ""
     pllnum_r0_value = ""
 
-    #R1 values
+    # R1 values
     cpg_r1_value = ""
     vcosel_r1_value = ""
     pllnum_r1_value = ""
     frac_order_r1_value = ""
     pll_r_r1_value = ""
 
-    #R2 Value
+    # R2 Value
     osc2x_r2_value = ""
     cpp_r2_value = ""
     pllden_r2_value = ""
 
-    #R3 value
+    # R3 value
     vcodiv_r3_value = ""
     outb_pwr_r3_value = ""
     outa_pwr_r3_value = ""
     outb_pd_r3_value = ""
     outa_pd_r3_value = ""
 
-    #R4 value
+    # R4 value
     pfd_dly_r4_value = ""
     fl_frce_r4_value = ""
     fl_toc_r4_value = ""
     fl_cpg_r4_value = ""
     fl_cpg_bleed_r4_value = ""
 
-    #R5 value
+    # R5 value
     outld_en_r5_value = ""
     oscfreq_r5_value = ""
     bufen_dis_r5_value = ""
@@ -74,12 +75,12 @@ class intF:
     pwdn_mode_r5_value = ""
     reset_r5_value = ""
 
-    #R6 value
+    # R6 value
     rd_diagnostics_r6_value = ""
     rdaddr_r6_value = ""
     uWirelock_r6_value = ""
 
-    #R7 value
+    # R7 value
     fl_select_r7_value = ""
     fl_pinMode_r7_value = ""
     fl_inv_r7_value = ""
@@ -90,22 +91,23 @@ class intF:
     ld_inv_r7_value = ""
     ld_pinmode_r7_value = ""
 
-    #R8 R9 R10 values
+    # R8 R9 R10 values
     reg_r8_value = ""
     reg_r9_value = ""
     reg_r10_value = ""
 
-    #R13 value
-    dld_err_cnt_r13_value = "" 
+    # R13 value
+    dld_err_cnt_r13_value = ""
     dld_pass_cnt_r13_value = ""
     dld_tol_r13_value = ""
 
-    #R15 value
+    # R15 value
     vcocap_man_r15_value = ""
     vco_capcode_r15_value = ""
-    
-    #payloads
+
+    # payloads
     spi_rxData = ""
+
 
 try:
     h = hid.device()
@@ -116,11 +118,19 @@ try:
     print("Manufactuere: {}".format(intF.manufactuere))
     print("Product: {}".format(intF.product))
     print("Serial Number: {}".format(intF.serialNumber))
-    
+
     mcp = Mcp2210(serial_number=intF.serialNumber, vendor_id=intF.vid, product_id=intF.pid)
     mcp.configure_spi_timing(chip_select_to_data_delay=0, last_data_byte_to_cs=0, delay_between_bytes=0)
     intF.connStatus = 1
+    mcp.set_gpio_designation(0, Mcp2210GpioDesignation.GPIO)
+    mcp.set_gpio_direction(0, Mcp2210GpioDirection.OUTPUT)
+    mcp.set_gpio_output_value(0, 0)
 
+    mcp.set_gpio_designation(1, Mcp2210GpioDesignation.GPIO)
+    mcp.set_gpio_direction(1, Mcp2210GpioDirection.OUTPUT)
+    mcp.set_gpio_output_value(1, 0)
+
+    mcp.set_gpio_designation(2, Mcp2210GpioDesignation.CHIP_SELECT)
 except Exception as err:
     print("Device is not Connected: {}".format(err))
     intF.connStatus = 0
@@ -168,11 +178,8 @@ class mcpAPI():
 
     def spi_write(cs_pin, payload):
         print("Sending Byte: {}\n".format(payload))
-        #tx_data = bytes(payload)
         intF.spi_rxData = payload
-        #print(tx_data)
-        #rx_data = mcp.spi_exchange(tx_data, cs_pin_number = cs_pin)
-        #"""
+
         temp_txData = struct.unpack('4B', struct.pack('>I', payload))
         temp_txByteArrayData = bytearray()
         for i in range(len(temp_txData)):
@@ -186,10 +193,19 @@ class mcpAPI():
             #rx_data = temp_txData.append(mcp.spi_exchange(temp_txData[i], cs_pin_number=cs_pin))
             print("SPI RX_Data: {}".format(rx_data))
         """
-        rx_data = mcp.spi_exchange(temp_txByteData, cs_pin_number=cs_pin)
-        print("SPI RX_DATA: {}".format(rx_data))
-        #"""
-        
+        try:
+            assert cs_pin == 0 or cs_pin == 1
+            mcp.set_gpio_output_value(cs_pin, 1)
+            time.sleep(0.001)
+            mcp.set_gpio_output_value(cs_pin, 0)
+            rx_data = mcp.spi_exchange(temp_txByteData, cs_pin_number=2)
+            print("SPI RX_DATA: {}".format(rx_data))
+            mcp.set_gpio_output_value(cs_pin, 1)
+            time.sleep(0.001)
+            mcp.set_gpio_output_value(cs_pin, 0)
+        except:
+            messagebox.showinfo("error", "Wrong CS PIN Selected!!")
+
 
     def spi_write_payload(button, value):
         print("Received value: {}\nButton: {}".format(value, button))
@@ -205,7 +221,7 @@ class mcpAPI():
             tempByte = tempByte<<12|tempList[4]
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
            
@@ -221,7 +237,7 @@ class mcpAPI():
             tempByte = tempByte<<8|tempList[4]
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
         elif 2 == value:
@@ -238,7 +254,7 @@ class mcpAPI():
             tempByte = tempByte<<22|tempList[2]
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
         elif 3 == value:
@@ -262,7 +278,7 @@ class mcpAPI():
             tempByte = tempByte<<1|tempList[4]
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
         elif 4 == value:
@@ -278,7 +294,7 @@ class mcpAPI():
             tempByte = tempByte<<6|tempList[4]
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
         elif 5 == value:
@@ -300,7 +316,7 @@ class mcpAPI():
             tempByte = tempByte<<1|tempList[9]
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
         elif 6 == value:
@@ -316,7 +332,7 @@ class mcpAPI():
             tempByte = tempByte<<1|tempList[2]
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
         elif 7 == value:
@@ -336,7 +352,7 @@ class mcpAPI():
             tempByte = tempByte<<3|tempList[8]
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
         elif 8 == value:
@@ -349,7 +365,7 @@ class mcpAPI():
             tempByte = tempByte<<4|15
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
         elif 9 == value:
@@ -362,7 +378,7 @@ class mcpAPI():
             tempByte = tempByte<<4|3
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
         elif 10 == value:
@@ -375,7 +391,7 @@ class mcpAPI():
             tempByte = tempByte<<4|12
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
         elif 13 == value:
@@ -389,7 +405,7 @@ class mcpAPI():
             tempByte = tempByte<<11|1040
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
         elif 15 == value:
@@ -402,7 +418,7 @@ class mcpAPI():
             tempByte = tempByte<<8|tempList[1]
             tempByte = tempByte<<4|int(value)
             print(tempByte)
-            mcpAPI.spi_init(button)
+            #mcpAPI.spi_init(button)
             mcpAPI.spi_write(button, tempByte)
 
 class App(tk.Tk):
