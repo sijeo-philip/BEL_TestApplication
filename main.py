@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 import webbrowser
 from tkinter import messagebox
-import time
+
 from token import EXACT_TOKEN_TYPES
 from mcp2210 import Mcp2210, Mcp2210GpioDesignation, Mcp2210GpioDirection
 import hid
@@ -108,32 +108,32 @@ class intF:
     # payloads
     spi_rxData = ""
 
+    def connect_device():
+        try:
+            h = hid.device()
+            h.open(intF.vid, intF.pid)
+            intF.manufactuere = h.get_manufacturer_string()
+            intF.serialNumber = h.get_serial_number_string()
+            intF.product = h.get_product_string()
+            print("Manufactuer: {}".format(intF.manufactuere))
+            print("Product: {}".format(intF.product))
+            print("Serial Number: {}".format(intF.serialNumber))
 
-try:
-    h = hid.device()
-    h.open(intF.vid, intF.pid)
-    intF.manufactuere = h.get_manufacturer_string()
-    intF.serialNumber = h.get_serial_number_string()
-    intF.product = h.get_product_string()
-    print("Manufactuere: {}".format(intF.manufactuere))
-    print("Product: {}".format(intF.product))
-    print("Serial Number: {}".format(intF.serialNumber))
+            mcp = Mcp2210(serial_number=intF.serialNumber, vendor_id=intF.vid, product_id=intF.pid)
+            mcp.configure_spi_timing(chip_select_to_data_delay=0, last_data_byte_to_cs=0, delay_between_bytes=0)
+            intF.connStatus = 1
+            mcp.set_gpio_designation(0, Mcp2210GpioDesignation.GPIO)
+            mcp.set_gpio_direction(0, Mcp2210GpioDirection.OUTPUT)
+            mcp.set_gpio_output_value(0, 0)
 
-    mcp = Mcp2210(serial_number=intF.serialNumber, vendor_id=intF.vid, product_id=intF.pid)
-    mcp.configure_spi_timing(chip_select_to_data_delay=0, last_data_byte_to_cs=0, delay_between_bytes=0)
-    intF.connStatus = 1
-    mcp.set_gpio_designation(0, Mcp2210GpioDesignation.GPIO)
-    mcp.set_gpio_direction(0, Mcp2210GpioDirection.OUTPUT)
-    mcp.set_gpio_output_value(0, 0)
+            mcp.set_gpio_designation(1, Mcp2210GpioDesignation.GPIO)
+            mcp.set_gpio_direction(1, Mcp2210GpioDirection.OUTPUT)
+            mcp.set_gpio_output_value(1, 0)
 
-    mcp.set_gpio_designation(1, Mcp2210GpioDesignation.GPIO)
-    mcp.set_gpio_direction(1, Mcp2210GpioDirection.OUTPUT)
-    mcp.set_gpio_output_value(1, 0)
-
-    mcp.set_gpio_designation(2, Mcp2210GpioDesignation.CHIP_SELECT)
-except Exception as err:
-    print("Device is not Connected: {}".format(err))
-    intF.connStatus = 0
+            mcp.set_gpio_designation(2, Mcp2210GpioDesignation.CHIP_SELECT)
+        except Exception as err:
+            messagebox.showinfo("info", "{}".format(err))
+            intF.connStatus = 0
 
 
 
@@ -1191,7 +1191,7 @@ class App(tk.Tk):
             webbrowser.open_new("lmx2581_15.pdf")
 
     def ConnectDevice(self):
-        pass
+        intF.connect_device()
 
     def register_data_capture(self):
         pass
