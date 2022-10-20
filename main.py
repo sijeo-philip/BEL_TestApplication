@@ -1023,12 +1023,12 @@ class mcpAPI():
         try:
             assert (cs_pin == 0 or cs_pin == 1)
             mcp.set_gpio_output_value(cs_pin, 1)
-            time.sleep(0.001)
+            time.sleep(0.000001)
             mcp.set_gpio_output_value(cs_pin, 0)
             rx_data = mcp.spi_exchange(temp_txByteData, cs_pin_number=2)
             print("SPI RX_DATA: {}".format(rx_data))
             mcp.set_gpio_output_value(cs_pin, 1)
-            time.sleep(0.001)
+            time.sleep(0.000001)
             mcp.set_gpio_output_value(cs_pin, 0)
         except:
             messagebox.showinfo("error", "Wrong CS PIN Selected!!")
