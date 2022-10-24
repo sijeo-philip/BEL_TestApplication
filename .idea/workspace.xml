@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b78d4c80-7b80-433e-be2c-c9e8a3bbe097" name="Changes" comment="Connect Variables and function made accessible as the MCP variable was out of scope when used inside the Class">
+    <list default="true" id="b78d4c80-7b80-433e-be2c-c9e8a3bbe097" name="Changes" comment="Changed the LE strobe timing to 1 microsecond">
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
@@ -71,7 +71,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666093341074</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Changed the LE strobe timing to 1 microsecond">
+      <created>1666274212539</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1666274212539</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -89,6 +96,7 @@
     <MESSAGE value="Font changed to Tahoma from Helvetica" />
     <MESSAGE value="Connect to be board is done by pressing the Connect Button" />
     <MESSAGE value="Status bar of the Application will display Connected, Disconnected as per the connection status of the Device." />
-    <option name="LAST_COMMIT_MESSAGE" value="Status bar of the Application will display Connected, Disconnected as per the connection status of the Device." />
+    <MESSAGE value="Changed the LE strobe timing to 1 microsecond" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed the LE strobe timing to 1 microsecond" />
   </component>
 </project>

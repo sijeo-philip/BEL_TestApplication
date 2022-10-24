@@ -6,7 +6,9 @@ import tkinter as tk
 from tkinter import ttk
 import webbrowser
 from tkinter import messagebox
-
+from tkinter.filedialog import asksaveasfile
+from tkinter.filedialog import askopenfilename
+import configparser
 from token import EXACT_TOKEN_TYPES
 from mcp2210 import Mcp2210, Mcp2210GpioDesignation, Mcp2210GpioDirection
 import hid
@@ -106,6 +108,8 @@ vco_capcode_r15_value = ""
 
 # payloads
 spi_rxData = 0
+
+config = configparser.RawConfigParser()
 
 def connect_device():
     global connStatus
@@ -898,6 +902,12 @@ class App(tk.Tk):
         self.connectButton = ttk.Button(self.secondMainFrame, text="Connect", command=self.ConnectDevice)
         self.connectButton.pack(padx= 10, ipadx=5, ipady=5, anchor='e', side=tk.RIGHT)
 
+        self.loadConfigButton = ttk.Button(self.secondMainFrame, text="Load Config", command=self.LoadConfig)
+        self.loadConfigButton.pack(padx= 10, ipadx=5, ipady=5, anchor='e', side=tk.RIGHT)
+
+        self.saveConfigButton = ttk.Button(self.secondMainFrame, text="Save Config", command=self.SaveConfig)
+        self.saveConfigButton.pack(padx=10, ipadx=5, ipady=5, anchor='e', side=tk.RIGHT)
+
         self.statusBar = tk.Label(self, text='Disconnected', anchor='e', bd=1, relief=tk.SUNKEN)
         self.statusBar.pack(side=tk.BOTTOM, fill=tk.X, pady=1)
 
@@ -950,6 +960,157 @@ class App(tk.Tk):
             self.statusBar['text'] = 'Connected'
         elif connStatus == 0:
             self.statusBar['text'] = 'Disconnected'
+
+    def SaveConfig(self):
+        file_path = asksaveasfile(filetypes=(("Config Files", "*.cfg"),))
+        print("The file is saved at {}, type is {}".format(file_path.name, type(file_path.name)))
+        try:
+            config.add_section('PLLSettingsR0')
+            config.set('PLLSettingsR0','id_r0', int(id_r0_value.get()))
+            config.set('PLLSettingsR0', 'frac_dither_r0', int(frac_dither_r0_value.get()))
+            config.set('PLLSettingsR0', 'no_fcal_r0', int(no_fcal_r0_value.get()))
+            config.set('PLLSettingsR0', 'plln_r0', int(plln_r0_value.get()))
+            config.set('PLLSettingsR0', 'pllnum_r0', int(pllnum_r0_value.get()))
+
+            config.add_section('PLLSettingsR1')
+            config.set('PLLSettingsR1', 'cpg_r1', int(cpg_r1_value.get()))
+            config.set('PLLSettingsR1', 'vcosel_r1', int(vcosel_r1_value.get()))
+            config.set('PLLSettingsR1', 'pllnum_r1', int(pllnum_r1_value.get()))
+            config.set('PLLSettingsR1', 'frac_order_r1', int(frac_order_r1_value.get()))
+            config.set('PLLSettingsR1', 'pll_r_r1', int(pll_r_r1_value.get()))
+
+            config.add_section('PLLSettingsR2')
+            config.set('PLLSettingsR2', 'osc2x_r2', int(osc2x_r2_value.get()))
+            config.set('PLLSettingsR2', 'cpp_r2', int(cpp_r2_value.get()))
+            config.set('PLLSettingsR2', 'pllden_r2', int(pllden_r2_value.get()))
+
+            config.add_section('PLLSettingsR3')
+            config.set('PLLSettingsR3', 'vcodiv_r3', int(vcodiv_r3_value.get()))
+            config.set('PLLSettingsR3', 'outb_pwr_r3', int(outb_pwr_r3_value.get()))
+            config.set('PLLSettingsR3','outa_pwr_r3', int(outa_pwr_r3_value.get()))
+            config.set('PLLSettingsR3', 'outb_pd_r3', int(outb_pd_r3_value.get()))
+            config.set('PLLSettingsR3','outa_pd_r3', int(outa_pd_r3_value.get()))
+
+            config.add_section('PLLSettingsR4')
+            config.set('PLLSettingsR4','pfd_dly_r4', int(pfd_dly_r4_value.get()))
+            config.set('PLLSettingsR4','fl_frce_r4', int(fl_frce_r4_value.get()))
+            config.set('PLLSettingsR4', 'fl_toc_r4', int(fl_toc_r4_value.get()))
+            config.set('PLLSettingsR4', 'fl_cpg_r4', int(fl_cpg_r4_value.get()))
+            config.set('PLLSettingsR4', 'fl_cpg_bleed_r4', int(fl_cpg_bleed_r4_value.get()))
+
+            config.add_section('PLLSettingsR5')
+            config.set('PLLSettingsR5', 'outld_en_r5', int(outld_en_r5_value.get()))
+            config.set('PLLSettingsR5', 'oscfreq_r5', int(oscfreq_r5_value.get()))
+            config.set('PLLSettingsR5', 'bufen_dis_r5', int(bufen_dis_r5_value.get()))
+            config.set('PLLSettingsR5','vco_sel_mode_r5', int(vco_sel_mode_r5_value.get()))
+            config.set('PLLSettingsR5','outb_mux_r5', int(outb_mux_r5_value.get()))
+            config.set('PLLSettingsR5', 'outa_mux_r5',int(outa_mux_r5_value.get()))
+            config.set('PLLSettingsR5','odly_r5', int(odly_r5_value.get()))
+            config.set('PLLSettingsR5','mode_r5', int(mode_r5_value.get()))
+            config.set('PLLSettingsR5', 'pwdn_mode_r5', int(pwdn_mode_r5_value.get()))
+            config.set('PLLSettingsR5', 'reset_r5', int(reset_r5_value.get()))
+
+            config.add_section('PLLSettingsR6')
+            config.set('PLLSettingsR6', 'rd_diagnostics_r6',int(rd_diagnostics_r6_value.get()))
+            config.set('PLLSettingsR6', 'rdaddr_r6', int(rdaddr_r6_value.get()))
+            config.set('PLLSettingsR6', 'uWirelock_r6', int(uWirelock_r6_value.get()))
+
+            config.add_section('PLLSettingsR7')
+            config.set('PLLSettingsR7', 'fl_select_r7', int(fl_select_r7_value.get()))
+            config.set('PLLSettingsR7', 'fl_pinMode_r7', int(fl_pinMode_r7_value.get()))
+            config.set('PLLSettingsR7', 'fl_inv_r7', int(fl_inv_r7_value.get()))
+            config.set('PLLSettingsR7', 'muxout_select_r7', int(muxout_select_r7_value.get()))
+            config.set('PLLSettingsR7', 'mux_inv_r7', int(mux_inv_r7_value.get()))
+            config.set('PLLSettingsR7', 'muxout_pinmode_r7', int(muxout_pinmode_r7_value.get()))
+            config.set('PLLSettingsR7', 'ld_select_r7', int(ld_select_r7_value.get()))
+            config.set('PLLSettingsR7', 'ld_inv_r7', int(ld_inv_r7_value.get()))
+            config.set('PLLSettingsR7', 'ld_pinmode_r7', int(ld_pinmode_r7_value.get()))
+
+            config.add_section('PLLSettingsR13')
+            config.set('PLLSettingsR13', 'dld_err_cnt_r13', int(dld_err_cnt_r13_value.get()))
+            config.set('PLLSettingsR13', 'dld_pass_cnt_r13', int(dld_pass_cnt_r13_value.get()))
+            config.set('PLLSettingsR13', 'dld_tol_r13', int(dld_tol_r13_value.get()))
+
+            config.add_section('PLLSettingsR15')
+            config.set('PLLSettingsR15','vcocap_man_r15', int(vcocap_man_r15_value.get()))
+            config.set('PLLSettingsR15', 'vco_capcode_r15', int(vco_capcode_r15_value.get()))
+
+            with open(file_path.name, 'w') as configfile:
+                config.write(configfile)
+            messagebox.showinfo("info", "Register Configurations Saved!!")
+        except Exception as err:
+            messagebox.showinfo('error', "{}".format(err))
+
+
+    def LoadConfig(self):
+        file_path = askopenfilename(defaultextension='*.cfg', filetypes=(('Config Files', '*.cfg'), ))
+        print("The file is opened at {}, type is {}".format(file_path, type(file_path)))
+        try:
+            config.read(file_path)
+            id_r0_value.set(config.getint('PLLSettingsR0', 'id_r0'))
+            frac_dither_r0_value.set(config.getint('PLLSettingsR0', 'frac_dither_r0'))
+            no_fcal_r0_value.set(config.getint('PLLSettingsR0', 'no_fcal_r0'))
+            plln_r0_value.set(config.getint('PLLSettingsR0', 'plln_r0'))
+            pllnum_r0_value.set(config.getint('PLLSettingsR0', 'pllnum_r0'))
+
+            cpg_r1_value.set(config.getint('PLLSettingsR1', 'cpg_r1'))
+            vcosel_r1_value.set(config.getint('PLLSettingsR1', 'vcosel_r1'))
+            pllnum_r1_value.set(config.getint('PLLSettingsR1', 'pllnum_r1'))
+            frac_order_r1_value.set(config.getint('PLLSettingsR1', 'frac_order_r1'))
+            pll_r_r1_value.set(config.getint('PLLSettingsR1', 'pll_r_r1'))
+
+            osc2x_r2_value.set(config.getint('PLLSettingsR2', 'osc2x_r2'))
+            cpp_r2_value.set(config.getint('PLLSettingsR2', 'cpp_r2'))
+            pllden_r2_value.set(config.getint('PLLSettingsR2', 'pllden_r2'))
+
+            vcodiv_r3_value.set(config.getint('PLLSettingsR3', 'vcodiv_r3'))
+            outb_pwr_r3_value.set(config.getint('PLLSettingsR3', 'outb_pwr_r3'))
+            outa_pwr_r3_value.set(config.getint('PLLSettingsR3', 'outa_pwr_r3'))
+            outb_pd_r3_value.set(config.getint('PLLSettingsR3', 'outb_pd_r3'))
+            outa_pd_r3_value.set(config.getint('PLLSettingsR3', 'outa_pd_r3'))
+
+            pfd_dly_r4_value.set(config.getint('PLLSettingsR4', 'pfd_dly_r4'))
+            fl_frce_r4_value.set(config.getint('PLLSettingsR4', 'fl_frce_r4'))
+            fl_toc_r4_value.set(config.getint('PLLSettingsR4','fl_toc_r4'))
+            fl_cpg_r4_value.set(config.getint('PLLSettingsR4','fl_cpg_r4'))
+            fl_cpg_bleed_r4_value.set(config.getint('PLLSettingsR4', 'fl_cpg_bleed_r4'))
+
+            outld_en_r5_value.set(config.getint('PLLSettingsR5', 'outld_en_r5'))
+            oscfreq_r5_value.set(config.getint('PLLSettingsR5', 'oscfreq_r5'))
+            bufen_dis_r5_value.set(config.getint('PLLSettingsR5','bufen_dis_r5'))
+            vco_sel_mode_r5_value.set(config.getint('PLLSettingsR5','vco_sel_mode_r5'))
+            outb_mux_r5_value.set(config.getint('PLLSettingsR5', 'outb_mux_r5'))
+            outa_mux_r5_value.set(config.getint('PLLSettingsR5', 'outa_mux_r5'))
+            odly_r5_value.set(config.getint('PLLSettingsR5', 'odly_r5'))
+            mode_r5_value.set(config.getint('PLLSettingsR5', 'mode_r5'))
+            pwdn_mode_r5_value.set(config.getint('PLLSettingsR5', 'pwdn_mode_r5'))
+            reset_r5_value.set(config.getint('PLLSettingsR5', 'reset_r5'))
+
+            rd_diagnostics_r6_value.set(config.getint('PLLSettingsR6', 'rd_diagnostics_r6'))
+            rdaddr_r6_value.set(config.getint('PLLSettingsR6', 'rdaddr_r6'))
+            uWirelock_r6_value.set(config.getint('PLLSettingsR6', 'uWirelock_r6'))
+
+            fl_select_r7_value.set(config.getint('PLLSettingsR7', 'fl_select_r7'))
+            fl_pinMode_r7_value.set(config.getint('PLLSettingsR7', 'fl_pinMode_r7'))
+            fl_inv_r7_value.set(config.getint('PLLSettingsR7', 'fl_inv_r7'))
+            muxout_select_r7_value.set(config.getint('PLLSettingsR7','muxout_select_r7'))
+            mux_inv_r7_value.set(config.getint('PLLSettingsR7', 'mux_inv_r7'))
+            muxout_pinmode_r7_value.set(config.getint('PLLSettingsR7', 'muxout_pinmode_r7'))
+            ld_select_r7_value.set(config.getint('PLLSettingsR7', 'ld_select_r7'))
+            ld_inv_r7_value.set(config.getint('PLLSettingsR7', 'ld_inv_r7'))
+            ld_pinmode_r7_value.set(config.getint('PLLSettingsR7', 'ld_pinmode_r7'))
+
+            dld_err_cnt_r13_value.set(config.getint('PLLSettingsR13','dld_err_cnt_r13'))
+            dld_pass_cnt_r13_value.set(config.getint('PLLSettingsR13','dld_pass_cnt_r13'))
+            dld_tol_r13_value.set(config.getint('PLLSettingsR13', 'dld_tol_r13'))
+
+            vcocap_man_r15_value.set(config.getint('PLLSettingsR15', 'vcocap_man_r15'))
+            vco_capcode_r15_value.set(config.getint('PLLSettingsR15', 'vco_capcode_r15'))
+
+            messagebox.showinfo("INFO", "Values from {} is Loaded into Register".format(file_path))
+
+        except Exception as err:
+            messagebox.showerror('error', "{}".format(err))
 
     def register_data_capture(self):
         pass
