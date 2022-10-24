@@ -1128,7 +1128,7 @@ class mcpAPI():
             tempByte = tempByte << 1 | tempList[1]
             tempByte = tempByte << 12 | tempList[2]
             tempByte = tempByte << 5 | tempList[3]
-            tempByte = tempByte << 1 | 1
+            tempByte = tempByte << 1 | 0
             tempByte = tempByte << 6 | tempList[4]
             tempByte = tempByte << 4 | int(value)
             print(tempByte)
@@ -1224,8 +1224,8 @@ class mcpAPI():
             print("R9: {}".format(tempList[0]))
             tempByte = 0
             tempByte = tempByte << 12 | 60
-            tempByte = tempByte << 12 | 124
-            tempByte = tempByte << 4 | 3
+            tempByte = tempByte << 8 | 124
+            tempByte = tempByte << 8 | 3
             tempByte = tempByte << 4 | int(value)
             print(tempByte)
 
