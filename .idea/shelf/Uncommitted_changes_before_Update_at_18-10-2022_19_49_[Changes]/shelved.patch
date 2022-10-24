@@ -1,0 +1,47 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"b78d4c80-7b80-433e-be2c-c9e8a3bbe097\" name=\"Changes\" comment=\"Status bar of the Application will display Connected, Disconnected as per the connection status of the Device.\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/main.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/main.py\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"MarkdownSettingsMigration\">\r\n    <option name=\"stateVersion\" value=\"1\" />\r\n  </component>\r\n  <component name=\"ProjectId\" id=\"2GIko4CuHVgAMqr3tXI6Bj37wT5\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"ASKED_SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\r\n    \"RunOnceActivity.OpenProjectViewOnStart\": \"true\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"SHARE_PROJECT_CONFIGURATION_FILES\": \"true\"\r\n  }\r\n}]]></component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"b78d4c80-7b80-433e-be2c-c9e8a3bbe097\" name=\"Changes\" comment=\"\" />\r\n      <created>1666083656989</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1666083656989</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"Font changed to Tahoma from Helvetica\">\r\n      <created>1666083933393</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1666083933393</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"Connect to be board is done by pressing the Connect Button\">\r\n      <created>1666092416466</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1666092416466</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"Connect to be board is done by pressing the Connect Button\">\r\n      <created>1666092432444</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1666092432444</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"Status bar of the Application will display Connected, Disconnected as per the connection status of the Device.\">\r\n      <created>1666093341074</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1666093341074</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"5\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"Font changed to Tahoma from Helvetica\" />\r\n    <MESSAGE value=\"Connect to be board is done by pressing the Connect Button\" />\r\n    <MESSAGE value=\"Status bar of the Application will display Connected, Disconnected as per the connection status of the Device.\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Status bar of the Application will display Connected, Disconnected as per the connection status of the Device.\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision c6bb2d197618af060df2f0f043884cd4b00c14ba)
++++ b/.idea/workspace.xml	(date 1666101945506)
+@@ -4,9 +4,8 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="b78d4c80-7b80-433e-be2c-c9e8a3bbe097" name="Changes" comment="Status bar of the Application will display Connected, Disconnected as per the connection status of the Device.">
++    <list default="true" id="b78d4c80-7b80-433e-be2c-c9e8a3bbe097" name="Changes" comment="Connect Variables and function made accessible as the MCP variable was out of scope when used inside the Class">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -70,7 +69,14 @@
+       <option name="project" value="LOCAL" />
+       <updated>1666093341074</updated>
+     </task>
+-    <option name="localTasksCounter" value="5" />
++    <task id="LOCAL-00005" summary="Connect Variables and function made accessible as the MCP variable was out of scope when used inside the Class">
++      <created>1666096622407</created>
++      <option name="number" value="00005" />
++      <option name="presentableId" value="LOCAL-00005" />
++      <option name="project" value="LOCAL" />
++      <updated>1666096622407</updated>
++    </task>
++    <option name="localTasksCounter" value="6" />
+     <servers />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
+@@ -88,6 +94,7 @@
+     <MESSAGE value="Font changed to Tahoma from Helvetica" />
+     <MESSAGE value="Connect to be board is done by pressing the Connect Button" />
+     <MESSAGE value="Status bar of the Application will display Connected, Disconnected as per the connection status of the Device." />
+-    <option name="LAST_COMMIT_MESSAGE" value="Status bar of the Application will display Connected, Disconnected as per the connection status of the Device." />
++    <MESSAGE value="Connect Variables and function made accessible as the MCP variable was out of scope when used inside the Class" />
++    <option name="LAST_COMMIT_MESSAGE" value="Connect Variables and function made accessible as the MCP variable was out of scope when used inside the Class" />
+   </component>
+ </project>
+\ No newline at end of file

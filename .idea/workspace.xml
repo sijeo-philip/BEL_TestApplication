@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b78d4c80-7b80-433e-be2c-c9e8a3bbe097" name="Changes" comment="Changed the LE strobe timing to 1 microsecond">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-    </list>
+    <list default="true" id="b78d4c80-7b80-433e-be2c-c9e8a3bbe097" name="Changes" comment="Configurations Can be saved and loaded from *.cfg files. need to tested for further use." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -78,7 +74,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666274212539</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Configurations Can be saved and loaded from *.cfg files. need to tested for further use.">
+      <created>1666650459843</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1666650459843</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -97,6 +100,7 @@
     <MESSAGE value="Connect to be board is done by pressing the Connect Button" />
     <MESSAGE value="Status bar of the Application will display Connected, Disconnected as per the connection status of the Device." />
     <MESSAGE value="Changed the LE strobe timing to 1 microsecond" />
-    <option name="LAST_COMMIT_MESSAGE" value="Changed the LE strobe timing to 1 microsecond" />
+    <MESSAGE value="Configurations Can be saved and loaded from *.cfg files. need to tested for further use." />
+    <option name="LAST_COMMIT_MESSAGE" value="Configurations Can be saved and loaded from *.cfg files. need to tested for further use." />
   </component>
 </project>
