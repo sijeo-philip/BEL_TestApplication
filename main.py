@@ -109,7 +109,7 @@ vco_capcode_r15_value = ""
 # payloads
 spi_rxData = 0
 
-config = configparser.RawConfigParser()
+
 
 def connect_device():
     global connStatus
@@ -958,10 +958,13 @@ class App(tk.Tk):
         connect_device()
         if connStatus == 1:
             self.statusBar['text'] = 'Connected'
+            self.connectButton['enabled'] = False
         elif connStatus == 0:
             self.statusBar['text'] = 'Disconnected'
+            self.connectButton['enabled'] = False
 
     def SaveConfig(self):
+        config = configparser.RawConfigParser()
         file_path = asksaveasfile(filetypes=(("Config Files", "*.cfg"),))
         print("The file is saved at {}, type is {}".format(file_path.name, type(file_path.name)))
         try:
@@ -1043,6 +1046,7 @@ class App(tk.Tk):
 
 
     def LoadConfig(self):
+        config = configparser.RawConfigParser()
         file_path = askopenfilename(defaultextension='*.cfg', filetypes=(('Config Files', '*.cfg'), ))
         print("The file is opened at {}, type is {}".format(file_path, type(file_path)))
         try:
